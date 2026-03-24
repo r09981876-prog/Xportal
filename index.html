@@ -66,7 +66,6 @@
             justify-content: center;
         }
 
-        /* الشعار الكامل كصورة */
         .brand-full {
             margin-bottom: 60px;
         }
@@ -77,7 +76,7 @@
             object-fit: contain;
         }
 
-        /* الأزرار المستطيلة */
+        /* الأزرار المستطيلة بنفس المقاس */
         .button {
             width: 100%;
             padding: 20px 24px;
@@ -94,6 +93,7 @@
             transition: all 0.2s ease;
             margin-bottom: 12px;
             text-align: left;
+            min-height: 64px;
         }
 
         .button:hover {
@@ -105,12 +105,6 @@
             height: 24px;
             object-fit: contain;
             flex-shrink: 0;
-        }
-
-        .button-text {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
         }
 
         /* Screen 3 - Import */
@@ -245,7 +239,7 @@
             color: #5a5f6a;
         }
 
-        /* Screen 4 - Generated Words */
+        /* Screen 4 - Create */
         #screen3 {
             justify-content: flex-start;
             padding-top: 60px;
@@ -444,9 +438,35 @@
             color: #8b8f98;
             margin-bottom: 40px;
         }
+
+        /* رسالة الخطأ داخل الموقع */
+        .error-message {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #3e2828;
+            color: #ff6b6b;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 1000;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <!-- رسالة الخطأ -->
+    <div class="error-message" id="error-msg">Mot incorrect !</div>
+
     <!-- Screen 1: Logo -->
     <div class="screen active" id="screen1">
         <div class="logo-container">
@@ -456,14 +476,13 @@
 
     <!-- Screen 2: Main Menu -->
     <div class="screen" id="screen2">
-        <!-- الشعار الكامل كصورة واحدة -->
         <div class="brand-full">
             <img src="icon5.png" alt="xPortal">
         </div>
         
         <button class="button" onclick="showScreen('screen3')">
             <img src="icon2.png" alt="Wallet">
-            <span>Créer la phrase secrète du portefeuille</span>
+            <span>Créer phrase secrète</span>
         </button>
         
         <button class="button" onclick="showScreen('screen3-import')">
@@ -533,6 +552,7 @@
     </div>
 
     <script>
+        // قائمة كلمات BIP39 بدون تكرار
         const bip39Words = [
             "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
             "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
@@ -748,6 +768,7 @@
         let generatedWords = [];
         let verificationStep = 0;
         let userVerification = [];
+        let usedIndices = new Set();
 
         setTimeout(() => {
             showScreen('screen2');
@@ -756,6 +777,7 @@
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            hideError();
             
             if (screenId === 'screen3') {
                 generateWords();
@@ -764,9 +786,28 @@
             }
         }
 
+        function showError(msg) {
+            const errorEl = document.getElementById('error-msg');
+            errorEl.textContent = msg;
+            errorEl.classList.add('show');
+            setTimeout(hideError, 2000);
+        }
+
+        function hideError() {
+            document.getElementById('error-msg').classList.remove('show');
+        }
+
         function generateWords() {
-            const shuffled = [...bip39Words].sort(() => 0.5 - Math.random());
-            generatedWords = shuffled.slice(0, 12);
+            // توليد 12 كلمة فريدة بدون تكرار
+            const available = [...bip39Words];
+            generatedWords = [];
+            usedIndices.clear();
+            
+            for (let i = 0; i < 12; i++) {
+                const randomIndex = Math.floor(Math.random() * available.length);
+                const word = available.splice(randomIndex, 1)[0];
+                generatedWords.push(word);
+            }
             
             const grid = document.getElementById('words-grid');
             grid.innerHTML = '';
@@ -804,42 +845,54 @@
                 slot.className = 'verify-slot';
             });
             
-            const shuffled = [...generatedWords].sort(() => 0.5 - Math.random());
+            // خلط الكلمات للاختيار
+            const shuffled = [...generatedWords].map((word, index) => ({ word, index }))
+                .sort(() => 0.5 - Math.random());
+            
             const optionsContainer = document.getElementById('word-options');
             optionsContainer.innerHTML = '';
             
-            shuffled.forEach(word => {
+            shuffled.forEach(({ word, index }) => {
                 const btn = document.createElement('button');
                 btn.className = 'word-option';
                 btn.textContent = word;
-                btn.onclick = () => selectWord(word, btn);
+                btn.dataset.index = index;
+                btn.onclick = () => selectWord(word, index, btn);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        function selectWord(word, btn) {
+        function selectWord(word, originalIndex, btn) {
             if (verificationStep >= 12) return;
             
+            // التحقق من أن الكلمة هي المطلوبة بالترتيب
+            if (word !== generatedWords[verificationStep]) {
+                showError('Mot incorrect !');
+                
+                // اهتزاز الخانة الحالية
+                const slots = document.querySelectorAll('.verify-slot');
+                const currentSlot = slots[verificationStep];
+                currentSlot.classList.add('error');
+                setTimeout(() => currentSlot.classList.remove('error'), 500);
+                return;
+            }
+            
+            // كلمة صحيحة
             const slots = document.querySelectorAll('.verify-slot');
             const currentSlot = slots[verificationStep];
             
-            if (word === generatedWords[verificationStep]) {
-                currentSlot.textContent = word;
-                currentSlot.classList.add('filled');
-                btn.classList.add('used');
-                userVerification.push(word);
-                verificationStep++;
-                
-                document.getElementById('verify-progress').textContent = `${verificationStep}/12`;
-                
-                if (verificationStep === 12) {
-                    setTimeout(() => {
-                        showScreen('screen6');
-                    }, 500);
-                }
-            } else {
-                currentSlot.classList.add('error');
-                setTimeout(() => currentSlot.classList.remove('error'), 500);
+            currentSlot.textContent = word;
+            currentSlot.classList.add('filled');
+            btn.classList.add('used');
+            userVerification.push(word);
+            verificationStep++;
+            
+            document.getElementById('verify-progress').textContent = `${verificationStep}/12`;
+            
+            if (verificationStep === 12) {
+                setTimeout(() => {
+                    showScreen('screen6');
+                }, 500);
             }
         }
 
@@ -850,12 +903,33 @@
 
         document.getElementById('word-input')?.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                const val = this.value.trim();
-                if (val) {
-                    const textarea = document.getElementById('import-words');
-                    textarea.value += (textarea.value ? ' ' : '') + val;
+                const val = this.value.trim().toLowerCase();
+                if (!val) return;
+                
+                // التحقق من صحة الكلمة
+                if (!bip39Words.includes(val)) {
+                    showError('Mot invalide !');
                     this.value = '';
+                    return;
                 }
+                
+                const textarea = document.getElementById('import-words');
+                const currentText = textarea.value;
+                const words = currentText ? currentText.split(' ') : [];
+                
+                // التحقق من عدم التكرار
+                if (words.includes(val)) {
+                    showError('Mot déjà utilisé !');
+                    this.value = '';
+                    return;
+                }
+                
+                textarea.value += (currentText ? ' ' : '') + val;
+                this.value = '';
+                
+                // تحديث الرقم
+                const wordNum = document.querySelector('.word-number');
+                wordNum.textContent = words.length + 2;
             }
         });
     </script>
