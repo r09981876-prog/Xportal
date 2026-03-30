@@ -17,7 +17,7 @@
         html, body {
             width: 100%;
             height: 100%;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #000;
             overflow: hidden;
         }
@@ -31,7 +31,6 @@
             overflow: hidden;
         }
 
-        /* تنسيق الشاشات المشترك */
         .screen {
             position: absolute;
             top: 0;
@@ -41,7 +40,7 @@
             background: linear-gradient(180deg, #1a0a3e 0%, #0f0620 30%, #1a0a3e 70%, #0d0520 100%);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1;
         }
 
@@ -56,59 +55,46 @@
             pointer-events: none;
         }
 
-        /* التحكم في ظهور الشاشات */
         #mainScreen { transform: translateX(0); z-index: 2; }
         #importScreen { transform: translateX(100%); z-index: 3; }
         
         .show-import #mainScreen { transform: translateX(-100%); }
         .show-import #importScreen { transform: translateX(0); }
 
-        /* --- ستايل الصفحة الأولى --- */
+        /* الشاشة الرئيسية */
         .icon-1 { position: absolute; top: 44px; left: 20px; width: 28px; height: 28px; z-index: 100; }
         .icon-1 img { width: 100%; height: 100%; object-fit: contain; }
-        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 120px; position: relative; z-index: 10; }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 120px; z-index: 10; }
         .headline { text-align: center; margin-bottom: 40px; }
-        .headline-1 { font-size: 42px; font-weight: 700; color: #7c3aed; line-height: 1.15; letter-spacing: -0.8px; }
-        .headline-2 { font-size: 42px; font-weight: 700; color: #ffffff; line-height: 1.15; letter-spacing: -0.8px; }
-        .icon-2-wrapper { position: relative; width: 300px; height: 300px; flex-shrink: 0; }
-        .icon-2 { width: 100%; height: 100%; position: relative; }
+        .headline-1 { font-size: 42px; font-weight: 700; color: #7c3aed; line-height: 1.15; }
+        .headline-2 { font-size: 42px; font-weight: 700; color: #ffffff; line-height: 1.15; }
+        .icon-2-wrapper { width: 300px; height: 300px; }
         .icon-2 img { width: 100%; height: 100%; object-fit: contain; }
-        .actions { display: flex; gap: 12px; padding: 0 20px 40px; position: relative; z-index: 100; }
-        .btn { flex: 1; height: 54px; border-radius: 27px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: transform 0.15s ease; }
-        .btn:active { transform: scale(0.96); }
+        .actions { display: flex; gap: 12px; padding: 0 20px 40px; z-index: 100; }
+        .btn { flex: 1; height: 54px; border-radius: 27px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s; }
         .btn-import { background: rgba(255, 255, 255, 0.12); color: #ffffff; backdrop-filter: blur(20px); }
         .btn-create { background: #7c3aed; color: #ffffff; box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4); }
 
-        /* --- ستايل الصفحة الثانية --- */
-        .header { position: relative; z-index: 100; padding: 44px 20px 20px; display: flex; align-items: center; gap: 12px; }
-        .back-btn { width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .back-btn svg { width: 20px; height: 20px; stroke: #ffffff; }
+        /* شاشة الاستيراد */
+        .header { padding: 44px 20px 20px; display: flex; align-items: center; gap: 12px; z-index: 100; }
+        .back-btn { width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
         .header-title { font-size: 17px; font-weight: 600; color: #ffffff; }
-        .import-content { flex: 1; display: flex; flex-direction: column; padding: 0 20px; position: relative; z-index: 10; overflow-y: auto; }
+        .import-content { flex: 1; display: flex; flex-direction: column; padding: 0 20px; overflow-y: auto; z-index: 10; }
         .title-section { margin-bottom: 24px; }
-        .main-title { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 8px; line-height: 1.2; }
-        .subtitle { font-size: 15px; color: rgba(255, 255, 255, 0.6); line-height: 1.5; }
-        .seed-container { position: relative; margin-bottom: 20px; }
-        .seed-input-wrapper { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; min-height: 160px; position: relative; }
-        .seed-input-wrapper:focus-within { border-color: #7c3aed; background: rgba(124, 58, 237, 0.05); }
-        .seed-textarea { width: 100%; min-height: 120px; background: transparent; border: none; outline: none; color: #ffffff; font-size: 16px; font-family: 'Inter', monospace; line-height: 1.6; resize: none; }
-        .word-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-        .word-tag { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; font-size: 14px; color: #ffffff; }
-        .word-tag.invalid { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
-        .suggestions-container { position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; background: rgba(26, 10, 62, 0.98); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; backdrop-filter: blur(20px); }
-        .suggestions-container.show { display: block; }
-        .suggestion-item { padding: 12px 16px; color: #ffffff; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
-        .suggestion-item.active { background: rgba(124, 58, 237, 0.2); }
+        .main-title { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+        .subtitle { font-size: 15px; color: rgba(255, 255, 255, 0.6); }
+        .seed-input-wrapper { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; min-height: 160px; margin-bottom: 20px; }
+        .seed-input-wrapper.success { border-color: #22c55e; background: rgba(34, 197, 94, 0.05); }
+        .seed-textarea { width: 100%; min-height: 80px; background: transparent; border: none; outline: none; color: #ffffff; font-size: 16px; font-family: monospace; resize: none; }
+        .word-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .word-tag { padding: 6px 12px; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; font-size: 14px; color: #ffffff; }
         .stats { display: flex; gap: 16px; margin-bottom: 20px; }
         .stat { flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 16px; text-align: center; }
         .stat-value { font-size: 24px; font-weight: 700; color: #ffffff; }
-        .stat-label { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
-        .import-btn { width: 100%; height: 56px; background: #7c3aed; border: none; border-radius: 28px; color: #ffffff; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 40px; }
-        .import-btn:disabled { opacity: 0.5; }
-        .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.95); color: #ffffff; padding: 12px 20px; border-radius: 12px; opacity: 0; transition: 0.3s; z-index: 10000; }
-        .toast.show { opacity: 1; }
+        .stat-label { font-size: 12px; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; }
+        .import-btn { width: 100%; height: 56px; background: #7c3aed; border: none; border-radius: 28px; color: #ffffff; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: auto; margin-bottom: 40px; transition: 0.3s; }
+        .import-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* استعلامات الوسائط */
         @media (min-width: 431px) {
             body { display: flex; align-items: center; justify-content: center; background: #0a0a0a; }
             .app-container { height: 90vh; max-height: 932px; border-radius: 40px; box-shadow: 0 0 60px rgba(124, 58, 237, 0.2); }
@@ -129,9 +115,7 @@
                 <div class="headline-2">Many chains.</div>
             </div>
             <div class="icon-2-wrapper">
-                <div class="icon-2">
-                    <img src="icon2.png" alt="Crypto" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 300%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 stop-color=%22%238b5cf6%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23a855f7%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx=%22150%22 cy=%22150%22 rx=%22140%22 ry=%22140%22 fill=%22none%22 stroke=%22url%28%23g%29%22 stroke-width=%223%22 opacity=%220.3%22/%3E%3Crect x=%22120%22 y=%2280%22 width=%2260%22 height=%2260%22 rx=%2212%22 fill=%22%23e8e8e8%22/%3E%3Ctext x=%22150%22 y=%22125%22 text-anchor=%22middle%22 fill=%22%23627eea%22 font-size=%2236%22%3E◆%3C/text%3E%3Crect x=%2280%22 y=%22150%22 width=%2255%22 height=%2255%22 rx=%2212%22 fill=%22%2300d4aa%22/%3E%3Ctext x=%22107%22 y=%22190%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2230%22%3E☰%3C/text%3E%3Crect x=%22165%22 y=%22155%22 width=%2250%22 height=%2250%22 rx=%2212%22 fill=%22%23f7931a%22/%3E%3Ctext x=%22190%22 y=%22193%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2232%22%3E₿%3C/text%3E%3C/svg%3E'">
-                </div>
+                <img src="icon2.png" alt="Crypto" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 300%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 stop-color=%22%238b5cf6%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23a855f7%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx=%22150%22 cy=%22150%22 rx=%22140%22 ry=%22140%22 fill=%22none%22 stroke=%22url%28%23g%29%22 stroke-width=%223%22 opacity=%220.3%22/%3E%3Crect x=%22120%22 y=%2280%22 width=%2260%22 height=%2260%22 rx=%2212%22 fill=%22%23e8e8e8%22/%3E%3Crect x=%2280%22 y=%22150%22 width=%2255%22 height=%2255%22 rx=%2212%22 fill=%22%2300d4aa%22/%3E%3Crect x=%22165%22 y=%22155%22 width=%2250%22 height=%2250%22 rx=%2212%22 fill=%22%23f7931a%22/%3E%3C/svg%3E'">
             </div>
         </div>
         <div class="actions">
@@ -143,91 +127,63 @@
     <div class="screen" id="importScreen">
         <div class="header">
             <button class="back-btn" onclick="closeImport()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M15 18l-6-6 6-6"/>
-                </svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <span class="header-title">Import Wallet</span>
         </div>
         <div class="import-content">
             <div class="title-section">
-                <h1 class="main-title">Enter your recovery phrase</h1>
-                <p class="subtitle">Type your 12 or 24-word recovery phrase to restore your wallet.</p>
+                <h1 class="main-title">Recovery phrase</h1>
+                <p class="subtitle">Enter your 12 or 24-word recovery phrase to restore your wallet.</p>
             </div>
-            <div class="seed-container">
-                <div class="seed-input-wrapper" id="inputWrapper">
-                    <textarea class="seed-textarea" id="seedInput" placeholder="Enter words separated by spaces..." spellcheck="false" autocomplete="off"></textarea>
-                    <div class="word-tags" id="wordTags"></div>
-                </div>
-                <div class="suggestions-container" id="suggestions"></div>
+            <div class="seed-input-wrapper" id="inputWrapper">
+                <textarea class="seed-textarea" id="seedInput" placeholder="Enter words here..."></textarea>
+                <div class="word-tags" id="wordTags"></div>
             </div>
             <div class="stats">
                 <div class="stat"><div class="stat-value" id="wordCount">0</div><div class="stat-label">Words</div></div>
-                <div class="stat"><div class="stat-value" id="validCount">0</div><div class="stat-label">Valid</div></div>
+                <div class="stat"><div class="stat-value" id="statusIcon">—</div><div class="stat-label">Status</div></div>
             </div>
-            <button class="import-btn" id="importBtn" disabled>Import Wallet</button>
+            <button class="import-btn" id="importBtn" disabled onclick="alert('Wallet Imported!')">Import Wallet</button>
         </div>
     </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-    // الدوال الخاصة بالتنقل بين الصفحات
-    function openImport() {
-        document.getElementById('appContainer').classList.add('show-import');
-    }
-    function closeImport() {
-        document.getElementById('appContainer').classList.remove('show-import');
-    }
+    function openImport() { document.getElementById('appContainer').classList.add('show-import'); }
+    function closeImport() { document.getElementById('appContainer').classList.remove('show-import'); }
 
-    // نسخ منطق الكود الثاني (BIP39 والتحقق)
-    const BIP39_WORDS = ["abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act", "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit", "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "again", "age", "agent"]; // تم اختصار القائمة هنا للعرض فقط، يمكنك وضع القائمة كاملة كما في كودك الأصلي
-
-    let words = [];
     const seedInput = document.getElementById('seedInput');
     const wordTags = document.getElementById('wordTags');
-    const suggestions = document.getElementById('suggestions');
+    const wordCountDisplay = document.getElementById('wordCount');
+    const statusIcon = document.getElementById('statusIcon');
     const importBtn = document.getElementById('importBtn');
+    const inputWrapper = document.getElementById('inputWrapper');
 
-    seedInput.addEventListener('input', handleInput);
+    seedInput.addEventListener('input', function(e) {
+        const text = e.target.value;
+        const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+        const count = words.length;
 
-    function handleInput(e) {
-        const value = e.target.value;
-        const allWords = value.trim().split(/\s+/).filter(w => w.length > 0);
-        words = allWords.map((w, i) => ({
-            text: w.toLowerCase(),
-            valid: BIP39_WORDS.includes(w.toLowerCase())
-        }));
-        updateUI();
-        if (value.slice(-1) === ' ') showSuggestions('');
-        else showSuggestions(allWords[allWords.length-1] || '');
-    }
+        // تحديث العداد
+        wordCountDisplay.textContent = count;
 
-    function showSuggestions(input) {
-        if (!input) { suggestions.classList.remove('show'); return; }
-        const matches = BIP39_WORDS.filter(w => w.startsWith(input.toLowerCase())).slice(0, 5);
-        if (matches.length === 0) { suggestions.classList.remove('show'); return; }
-        
-        suggestions.innerHTML = matches.map(word => `<div class="suggestion-item" onclick="selectWord('${word}')">${word}</div>`).join('');
-        suggestions.classList.add('show');
-    }
+        // تحديث التاغات (الكلمات المرئية)
+        wordTags.innerHTML = words.map((w, i) => `<div class="word-tag">${i + 1}. ${w.toLowerCase()}</div>`).join('');
 
-    function selectWord(word) {
-        const currentWords = seedInput.value.trim().split(/\s+/);
-        currentWords[currentWords.length - 1] = word;
-        seedInput.value = currentWords.join(' ') + ' ';
-        seedInput.focus();
-        handleInput({target: seedInput});
-        suggestions.classList.remove('show');
-    }
-
-    function updateUI() {
-        wordTags.innerHTML = words.map((w, i) => `<div class="word-tag ${!w.valid ? 'invalid' : ''}">${i+1}. ${w.text}</div>`).join('');
-        document.getElementById('wordCount').textContent = words.length;
-        document.getElementById('validCount').textContent = words.filter(w => w.valid).length;
-        importBtn.disabled = !(words.length === 12 || words.length === 24);
-    }
+        // التحقق من العدد (12 أو 24 كلمة)
+        if (count === 12 || count === 24) {
+            importBtn.disabled = false;
+            statusIcon.textContent = '✓';
+            statusIcon.style.color = '#22c55e';
+            inputWrapper.classList.add('success');
+        } else {
+            importBtn.disabled = true;
+            statusIcon.textContent = '...';
+            statusIcon.style.color = '#ffffff';
+            inputWrapper.classList.remove('success');
+        }
+    });
 </script>
 
 </body>
